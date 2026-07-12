@@ -24,27 +24,31 @@ Aplikasi ini dibangun menggunakan Java Swing dengan database MySQL (XAMPP) dan m
 ```text
 src/main/java/com/spkbri/
 ├── core/
-│   └── MooraEngine.java        # Logika perhitungan metode MOORA
+│   └── MooraEngine.java            # Logika perhitungan metode MOORA
 ├── database/
-│   └── DatabaseHelper.java     # Manajemen koneksi dan inisialisasi database SQLite
+│   └── DatabaseHelper.java         # Manajemen koneksi database MySQL
 ├── model/
-│   ├── Karyawan.java           # Model data Karyawan
-│   ├── Kriteria.java           # Model data Kriteria
-│   ├── Penilaian.java          # Model data Penilaian
-│   └── RankingResult.java      # Model hasil perankingan
+│   ├── Karyawan.java               # Model data Karyawan
+│   ├── Kriteria.java               # Model data Kriteria
+│   ├── Penilaian.java              # Model data Penilaian
+│   └── RankingResult.java          # Model hasil perankingan
 ├── ui/
-│   ├── MainFrame.java          # Frame utama aplikasi (Dashboard & Navigasi)
-│   ├── LoginFrame.java         # Layar autentikasi pengguna
-│   ├── DashboardPanel.java     # Panel ringkasan data
-│   ├── KaryawanPanel.java      # Manajemen data karyawan
-│   ├── KriteriaPanel.java      # Manajemen data kriteria
-│   ├── PenilaianPanel.java     # Input nilai karyawan
-│   └── ReportPanel.java        # Tampilan rankinlg dan ekspor laporan
+│   ├── LoginFrame.java             # Layar autentikasi pengguna & routing role
+│   ├── MainFrame.java              # Window utama Administrator (Dashboard & Navigasi)
+│   ├── DashboardPanel.java         # Panel ringkasan data
+│   ├── KaryawanPanel.java          # Manajemen data karyawan (CRUD)
+│   ├── KriteriaPanel.java          # Manajemen data kriteria (CRUD)
+│   ├── PenilaianPanel.java         # Input nilai karyawan
+│   ├── ReportPanel.java            # Tampilan ranking & ekspor laporan
+│   ├── PimpinanFrame.java          # Window utama Pimpinan
+│   ├── PimpinanKaryawanPanel.java  # Daftar karyawan (Read-Only)
+│   ├── PimpinanPenilaianPanel.java # Input & update nilai kinerja
+│   └── PimpinanRankingPanel.java   # Lihat hasil ranking MOORA (tanpa ekspor)
 └── util/
-    └── ExportHelper.java       # Utilitas ekspor data ke PDF dan CSV
+    └── ExportHelper.java           # Utilitas ekspor data ke PDF dan CSV
 ```
 
----s
+---
 
 ## 🧮 Implementasi Metode MOORA
 Metode MOORA dalam aplikasi ini bekerja dengan langkah-langkah berikut:
@@ -55,18 +59,18 @@ Metode MOORA dalam aplikasi ini bekerja dengan langkah-langkah berikut:
 3. **Optimasi Terbobot:** Mengalikan nilai ternormalisasi dengan bobot kriteria:
    $$v_{ij} = x'_{ij} \cdot w_j$$
 4. **Perhitungan Nilai Akhir ($Y_i$):** Menghitung selisih antara jumlah nilai kriteria *Benefit* dan kriteria *Cost*:
-   $$Y_i = \sum(	ext{Benefit}) - \sum(	ext{Cost})$$
+   $$Y_i = \sum(\text{Benefit}) - \sum(\text{Cost})$$
 5. **Perankingan:** Mengurutkan karyawan berdasarkan nilai $Y_i$ tertinggi.
 
 ---
 
 ## 🗄️ Skema Database
-Aplikasi menggunakan database SQLite dengan tabel sebagai berikut:
+Aplikasi menggunakan database MySQL (`spk_moora`) dengan tabel sebagai berikut:
 
-- **`users`**: Menyimpan data akun administrator (username, password, nama).
+- **`users`**: Menyimpan data akun login beserta role (`admin` / `pimpinan`).
 - **`karyawan`**: Menyimpan data karyawan (NIK, nama, divisi).
 - **`kriteria`**: Menyimpan kriteria penilaian (kode, nama, sifat [Benefit/Cost], bobot, divisi).
-- **`penilaian`**: Menyimpan nilai yang diberikan untuk setiap karyawan per kriteria.
+- **`penilaian`**: Menyimpan nilai yang diberikan untuk setiap karyawan per kriteria (kombinasi `id_karyawan` dan `id_kriteria` bersifat unik).
 
 **Divisi yang didukung:**
 - Bisnis
@@ -75,22 +79,31 @@ Aplikasi menggunakan database SQLite dengan tabel sebagai berikut:
 ---
 
 ## 🚀 Fitur Utama
-- **Manajemen Karyawan:** Tambah, edit, dan hapus data karyawan per divisi.
-- **Manajemen Kriteria:** Pengaturan bobot dan sifat kriteria (Benefit/Cost).
-- **Input Penilaian:** Pemberian skor untuk setiap karyawan berdasarkan kriteria yang ada.
+- **Sistem Multi-Role:** Akses terpisah untuk **Administrator** (kelola data karyawan/kriteria, input nilai, ekspor laporan) dan **Pimpinan** (lihat karyawan, input/update nilai, lihat hasil perankingan).
+- **Manajemen Karyawan:** Tambah, edit, dan hapus data karyawan per divisi (hanya Admin).
+- **Manajemen Kriteria:** Pengaturan bobot dan sifat kriteria (Benefit/Cost) per divisi (hanya Admin).
+- **Input Penilaian:** Pemberian skor (0-100) untuk setiap karyawan berdasarkan kriteria yang ada (Admin & Pimpinan).
 - **Perankingan Otomatis:** Menghitung karyawan terbaik secara real-time menggunakan engine MOORA.
-- **Ekspor Laporan:** Mengunduh hasil perankingan dalam format **PDF** dan **CSV**.
-- **Autentikasi:** Sistem login untuk mengamankan akses data.
+- **Ekspor Laporan:** Mengunduh hasil perankingan dalam format **PDF** dan **CSV** (hanya Admin).
+- **Autentikasi:** Sistem login untuk mengamankan akses data dengan routing otomatis sesuai peran.
 
 ---
 
 ## ⚙️ Cara Menjalankan Aplikasi
-1. Pastikan JDK 8 atau lebih baru sudah terinstal.
-2. Gunakan Maven untuk mengunduh dependensi:
+1. Pastikan database MySQL (`spk_moora`) sudah diimpor menggunakan file `schema.sql`.
+2. Pastikan JDK 8 atau lebih baru sudah terinstal.
+3. Gunakan Maven untuk mengunduh dependensi:
    ```bash
    mvn clean install
    ```
-3. Jalankan kelas utama `com.spkbri.App`.
-4. Gunakan akun default untuk login pertama kali:
-   - **Username:** `admin`
-   - **Password:** `admin123`
+4. Jalankan kelas utama `com.spkbri.App`.
+5. Gunakan salah satu akun default berikut untuk login:
+   - **Administrator (Full CRUD & Ekspor):**
+     - **Username:** `admin`
+     - **Password:** `admin123`
+   - **Pimpinan Divisi Bisnis (Read-Only & Input Nilai):**
+     - **Username:** `pimpinan_bisnis`
+     - **Password:** `pimpinan123`
+   - **Pimpinan Divisi Operasional (Read-Only & Input Nilai):**
+     - **Username:** `pimpinan_ops`
+     - **Password:** `pimpinan123`
