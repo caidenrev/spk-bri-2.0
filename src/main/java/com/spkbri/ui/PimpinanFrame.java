@@ -259,6 +259,14 @@ public class PimpinanFrame extends JFrame {
     private void switchCard(String name, JButton source) {
         cardLayout.show(mainContentPanel, name);
         highlightButton(source);
+
+        if ("Penilaian".equals(name)) {
+            penilaianPanel.refreshTabs();
+        } else if ("Ranking".equals(name)) {
+            rankingPanel.refreshData();
+        } else if ("Karyawan".equals(name)) {
+            karyawanPanel.refreshData();
+        }
     }
 
     private void highlightButton(JButton active) {

@@ -303,6 +303,8 @@ public class MainFrame extends JFrame {
             dashboardPanel.refreshData();
         } else if ("Report".equals(name)) {
             reportPanel.refreshData();
+        } else if ("Penilaian".equals(name)) {
+            penilaianPanel.refreshTabs();
         }
     }
 

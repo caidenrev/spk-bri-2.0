@@ -22,6 +22,9 @@ import java.util.Map;
  */
 public class PimpinanPenilaianPanel extends JPanel {
 
+    private PimpinanPenilaianDivisiPanel panelBisnis;
+    private PimpinanPenilaianDivisiPanel panelOps;
+
     public PimpinanPenilaianPanel() {
         setLayout(new BorderLayout());
         setBackground(new Color(245, 247, 250));
@@ -43,10 +46,20 @@ public class PimpinanPenilaianPanel extends JPanel {
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
-        tabbedPane.addTab("Divisi Bisnis", new PimpinanPenilaianDivisiPanel("Bisnis"));
-        tabbedPane.addTab("Divisi Operasional", new PimpinanPenilaianDivisiPanel("Operasional"));
+        panelBisnis = new PimpinanPenilaianDivisiPanel("Bisnis");
+        panelOps = new PimpinanPenilaianDivisiPanel("Operasional");
+
+        tabbedPane.addTab("Divisi Bisnis", panelBisnis);
+        tabbedPane.addTab("Divisi Operasional", panelOps);
 
         add(tabbedPane, BorderLayout.CENTER);
+    }
+
+    public void refreshTabs() {
+        panelBisnis.loadKaryawan();
+        panelBisnis.loadKriteria();
+        panelOps.loadKaryawan();
+        panelOps.loadKriteria();
     }
 
     private static class PimpinanPenilaianDivisiPanel extends JPanel {
@@ -161,7 +174,7 @@ public class PimpinanPenilaianPanel extends JPanel {
             loadKriteria();
         }
 
-        private void loadKaryawan() {
+        public void loadKaryawan() {
             tableModel.setRowCount(0);
             String sql = "SELECT * FROM karyawan WHERE divisi = ? ORDER BY nama ASC";
             try (Connection conn = DatabaseHelper.getConnection();
@@ -183,7 +196,7 @@ public class PimpinanPenilaianPanel extends JPanel {
             loadDynamicForm();
         }
 
-        private void loadKriteria() {
+        public void loadKriteria() {
             kriteriaList.clear();
             String sql = "SELECT * FROM kriteria WHERE divisi = ? ORDER BY kode_kriteria ASC";
             try (Connection conn = DatabaseHelper.getConnection();
