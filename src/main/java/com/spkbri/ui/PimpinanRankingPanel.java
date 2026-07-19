@@ -17,6 +17,9 @@ import java.util.List;
  */
 public class PimpinanRankingPanel extends JPanel {
 
+    private RankingDivisiPanel panelBisnis;
+    private RankingDivisiPanel panelOps;
+
     public PimpinanRankingPanel() {
         setLayout(new BorderLayout());
         setBackground(new Color(245, 247, 250));
@@ -38,10 +41,18 @@ public class PimpinanRankingPanel extends JPanel {
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
-        tabbedPane.addTab("Ranking Divisi Bisnis", new RankingDivisiPanel("Bisnis"));
-        tabbedPane.addTab("Ranking Divisi Operasional", new RankingDivisiPanel("Operasional"));
+        panelBisnis = new RankingDivisiPanel("Bisnis");
+        panelOps = new RankingDivisiPanel("Operasional");
+
+        tabbedPane.addTab("Ranking Divisi Bisnis", panelBisnis);
+        tabbedPane.addTab("Ranking Divisi Operasional", panelOps);
 
         add(tabbedPane, BorderLayout.CENTER);
+    }
+
+    public void refreshData() {
+        panelBisnis.loadData();
+        panelOps.loadData();
     }
 
     private static class RankingDivisiPanel extends JPanel {

@@ -131,4 +131,8 @@ public class PimpinanKaryawanPanel extends JPanel {
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
+    public void refreshData() {
+        loadTableData("");
+    }
 }
