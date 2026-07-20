@@ -13,7 +13,7 @@ import java.sql.SQLException;
 
 public class KaryawanPanel extends JPanel {
 
-    private JTextField txtNik;
+    private JTextField txtKodeKaryawan;
     private JTextField txtNama;
     private JComboBox<String> cbDivisi;
     private JTable tblKaryawan;
@@ -62,11 +62,11 @@ public class KaryawanPanel extends JPanel {
                 new EmptyBorder(20, 20, 20, 20)
         ));
 
-        JLabel lblNik = new JLabel("NIK");
+        JLabel lblNik = new JLabel("Kode Karyawan");
         lblNik.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        txtNik = new JTextField();
-        txtNik.setPreferredSize(new Dimension(200, 35));
-        txtNik.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
+        txtKodeKaryawan = new JTextField();
+        txtKodeKaryawan.setPreferredSize(new Dimension(200, 35));
+        txtKodeKaryawan.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
 
         JLabel lblNama = new JLabel("Nama Lengkap");
         lblNama.setFont(new Font("Segoe UI", Font.BOLD, 12));
@@ -82,7 +82,7 @@ public class KaryawanPanel extends JPanel {
 
         formPanel.add(lblNik);
         formPanel.add(Box.createRigidArea(new Dimension(0, 5)));
-        formPanel.add(txtNik);
+        formPanel.add(txtKodeKaryawan);
         formPanel.add(Box.createRigidArea(new Dimension(0, 15)));
         formPanel.add(lblNama);
         formPanel.add(Box.createRigidArea(new Dimension(0, 5)));
@@ -151,7 +151,7 @@ public class KaryawanPanel extends JPanel {
 
         tablePanel.add(searchBarPanel, BorderLayout.NORTH);
 
-        tableModel = new DefaultTableModel(new Object[]{"ID", "NIK", "Nama Karyawan", "Divisi"}, 0) {
+        tableModel = new DefaultTableModel(new Object[]{"ID", "Kode Karyawan", "Nama Karyawan", "Divisi"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -164,7 +164,7 @@ public class KaryawanPanel extends JPanel {
             int selectedRow = tblKaryawan.getSelectedRow();
             if (selectedRow != -1) {
                 selectedId = (int) tblKaryawan.getValueAt(selectedRow, 0);
-                txtNik.setText((String) tblKaryawan.getValueAt(selectedRow, 1));
+                txtKodeKaryawan.setText((String) tblKaryawan.getValueAt(selectedRow, 1));
                 txtNama.setText((String) tblKaryawan.getValueAt(selectedRow, 2));
                 cbDivisi.setSelectedItem(tblKaryawan.getValueAt(selectedRow, 3));
 
@@ -197,7 +197,7 @@ public class KaryawanPanel extends JPanel {
         tableModel.setRowCount(0);
         String sql = "SELECT * FROM karyawan";
         if (!searchKeyword.isEmpty()) {
-            sql += " WHERE nama LIKE ? OR nik LIKE ?";
+            sql += " WHERE nama LIKE ? OR kode_karyawan LIKE ?";
         }
         sql += " ORDER BY nama ASC";
 
@@ -212,7 +212,7 @@ public class KaryawanPanel extends JPanel {
                 while (rs.next()) {
                     tableModel.addRow(new Object[]{
                             rs.getInt("id_karyawan"),
-                            rs.getString("nik"),
+                            rs.getString("kode_karyawan"),
                             rs.getString("nama"),
                             rs.getString("divisi")
                     });
@@ -225,19 +225,19 @@ public class KaryawanPanel extends JPanel {
     }
 
     private void saveKaryawan() {
-        String nik = txtNik.getText().trim();
+        String kodeKaryawan = txtKodeKaryawan.getText().trim();
         String nama = txtNama.getText().trim();
         String divisi = (String) cbDivisi.getSelectedItem();
 
-        if (nik.isEmpty() || nama.isEmpty()) {
+        if (kodeKaryawan.isEmpty() || nama.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Semua field harus diisi!", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        String sql = "INSERT INTO karyawan (nik, nama, divisi) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO karyawan (kode_karyawan, nama, divisi) VALUES (?, ?, ?)";
         try (Connection conn = DatabaseHelper.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, nik);
+            pstmt.setString(1, kodeKaryawan);
             pstmt.setString(2, nama);
             pstmt.setString(3, divisi);
             pstmt.executeUpdate();
@@ -248,26 +248,26 @@ public class KaryawanPanel extends JPanel {
             dashboardPanel.refreshData();
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Gagal menyimpan data (NIK mungkin sudah terdaftar): " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Gagal menyimpan data (Kode Karyawan mungkin sudah terdaftar): " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void updateKaryawan() {
         if (selectedId == -1) return;
 
-        String nik = txtNik.getText().trim();
+        String kodeKaryawan = txtKodeKaryawan.getText().trim();
         String nama = txtNama.getText().trim();
         String divisi = (String) cbDivisi.getSelectedItem();
 
-        if (nik.isEmpty() || nama.isEmpty()) {
+        if (kodeKaryawan.isEmpty() || nama.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Semua field harus diisi!", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        String sql = "UPDATE karyawan SET nik = ?, nama = ?, divisi = ? WHERE id_karyawan = ?";
+        String sql = "UPDATE karyawan SET kode_karyawan = ?, nama = ?, divisi = ? WHERE id_karyawan = ?";
         try (Connection conn = DatabaseHelper.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, nik);
+            pstmt.setString(1, kodeKaryawan);
             pstmt.setString(2, nama);
             pstmt.setString(3, divisi);
             pstmt.setInt(4, selectedId);
@@ -306,7 +306,7 @@ public class KaryawanPanel extends JPanel {
     }
 
     private void clearForm() {
-        txtNik.setText("");
+        txtKodeKaryawan.setText("");
         txtNama.setText("");
         cbDivisi.setSelectedIndex(0);
         selectedId = -1;

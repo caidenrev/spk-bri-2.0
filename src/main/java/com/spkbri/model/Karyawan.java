@@ -2,15 +2,15 @@ package com.spkbri.model;
 
 public class Karyawan {
     private int idKaryawan;
-    private String nik;
+    private String kodeKaryawan;
     private String nama;
     private String divisi;
 
     public Karyawan() {}
 
-    public Karyawan(int idKaryawan, String nik, String nama, String divisi) {
+    public Karyawan(int idKaryawan, String kodeKaryawan, String nama, String divisi) {
         this.idKaryawan = idKaryawan;
-        this.nik = nik;
+        this.kodeKaryawan = kodeKaryawan;
         this.nama = nama;
         this.divisi = divisi;
     }
@@ -18,8 +18,8 @@ public class Karyawan {
     public int getIdKaryawan() { return idKaryawan; }
     public void setIdKaryawan(int idKaryawan) { this.idKaryawan = idKaryawan; }
 
-    public String getNik() { return nik; }
-    public void setNik(String nik) { this.nik = nik; }
+    public String getKodeKaryawan() { return kodeKaryawan; }
+    public void setKodeKaryawan(String kodeKaryawan) { this.kodeKaryawan = kodeKaryawan; }
 
     public String getNama() { return nama; }
     public void setNama(String nama) { this.nama = nama; }
@@ -29,6 +29,6 @@ public class Karyawan {
 
     @Override
     public String toString() {
-        return nama + " (" + nik + ")";
+        return nama + " (" + kodeKaryawan + ")";
     }
 }

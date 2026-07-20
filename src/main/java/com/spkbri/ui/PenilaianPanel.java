@@ -96,7 +96,7 @@ public class PenilaianPanel extends JPanel {
                     new EmptyBorder(10, 10, 10, 10)
             ));
 
-            tableModel = new DefaultTableModel(new Object[]{"ID", "NIK", "Nama Karyawan"}, 0) {
+            tableModel = new DefaultTableModel(new Object[]{"ID", "Kode Karyawan", "Nama Karyawan"}, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
                     return false;
@@ -170,7 +170,7 @@ public class PenilaianPanel extends JPanel {
                     while (rs.next()) {
                         tableModel.addRow(new Object[]{
                                 rs.getInt("id_karyawan"),
-                                rs.getString("nik"),
+                                rs.getString("kode_karyawan"),
                                 rs.getString("nama")
                         });
                     }

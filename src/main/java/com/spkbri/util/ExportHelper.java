@@ -22,11 +22,11 @@ public class ExportHelper {
         try (FileWriter writer = new FileWriter(file)) {
             // Write BOM for Excel UTF-8 compatibility
             writer.write('\ufeff');
-            writer.write("Rank,NIK,Nama,Divisi,Score (Yi)\n");
+            writer.write("Rank,Kode Karyawan,Nama,Divisi,Score (Yi)\n");
             DecimalFormat df = new DecimalFormat("0.0000");
             for (RankingResult r : results) {
                 writer.write(r.getRank() + ","
-                        + escapeCSV(r.getKaryawan().getNik()) + ","
+                        + escapeCSV(r.getKaryawan().getKodeKaryawan()) + ","
                         + escapeCSV(r.getKaryawan().getNama()) + ","
                         + escapeCSV(r.getKaryawan().getDivisi()) + ","
                         + df.format(r.getScore()) + "\n");
@@ -66,7 +66,7 @@ public class ExportHelper {
         table.setWidths(new float[]{10, 20, 40, 15, 15});
 
         // Add headers
-        String[] headers = {"Rank", "NIK", "Nama Karyawan", "Divisi", "Score (Yi)"};
+        String[] headers = {"Rank", "Kode Karyawan", "Nama Karyawan", "Divisi", "Score (Yi)"};
         for (String header : headers) {
             PdfPCell cell = new PdfPCell(new Paragraph(header, headerFont));
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -78,7 +78,7 @@ public class ExportHelper {
         DecimalFormat df = new DecimalFormat("0.0000");
         for (RankingResult r : results) {
             table.addCell(createCell(String.valueOf(r.getRank()), Element.ALIGN_CENTER, bodyFont));
-            table.addCell(createCell(r.getKaryawan().getNik(), Element.ALIGN_CENTER, bodyFont));
+            table.addCell(createCell(r.getKaryawan().getKodeKaryawan(), Element.ALIGN_CENTER, bodyFont));
             table.addCell(createCell(r.getKaryawan().getNama(), Element.ALIGN_LEFT, bodyFont));
             table.addCell(createCell(r.getKaryawan().getDivisi(), Element.ALIGN_CENTER, bodyFont));
             table.addCell(createCell(df.format(r.getScore()), Element.ALIGN_RIGHT, bodyFont));

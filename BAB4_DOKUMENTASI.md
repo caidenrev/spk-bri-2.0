@@ -238,7 +238,7 @@ Menampilkan tiga kartu statistik ringkasan dan pratinjau Top 3 karyawan terbaik 
 
 ### 4.6.4 Kelola Data Karyawan (`KaryawanPanel`)
 
-Operasi CRUD karyawan dengan field NIK, Nama, Divisi. Dilengkapi pencarian live (`WHERE nama LIKE ? OR nik LIKE ?`). Tombol Update dan Hapus hanya aktif saat ada baris terpilih.
+Operasi CRUD karyawan dengan field Kode Karyawan, Nama, Divisi. Dilengkapi pencarian live (`WHERE nama LIKE ? OR kode_karyawan LIKE ?`). Tombol Update dan Hapus hanya aktif saat ada baris terpilih.
 
 ### 4.6.5 Kelola Data Kriteria (`KriteriaPanel`)
 
@@ -273,7 +273,7 @@ ON DUPLICATE KEY UPDATE nilai = VALUES(nilai)
 
 ### 4.6.7 Laporan dan Ranking (`ReportPanel`)
 
-Animasi 4 langkah proses MOORA, tabel ranking dengan kolom Rank/NIK/Nama/Divisi/Score(Yi), panel kesimpulan karyawan terbaik. Ekspor ke PDF (OpenPDF) dan CSV (Java IO dengan UTF-8 BOM).
+Animasi 4 langkah proses MOORA, tabel ranking dengan kolom Rank/Kode Karyawan/Nama/Divisi/Score(Yi), panel kesimpulan karyawan terbaik. Ekspor ke PDF (OpenPDF) dan CSV (Java IO dengan UTF-8 BOM).
 
 ---
 
@@ -308,7 +308,7 @@ Alur yang sama dengan `PenilaianPanel` milik admin, namun dengan perbedaan:
 
 - Animasi proses MOORA 4 langkah
 - Highlight baris rank 1 dengan warna emas (latar `#FFF8DC`)
-- Panel kesimpulan menampilkan nama, NIK, dan skor Yi karyawan terbaik
+- Panel kesimpulan menampilkan nama, Kode Karyawan, dan skor Yi karyawan terbaik
 - **Tidak ada tombol ekspor PDF/Excel** — hanya tombol "Perbarui Ranking"
 
 ---
@@ -488,14 +488,14 @@ try {
 | Login | Username dan password tidak boleh kosong |
 | Input Penilaian (Admin & Pimpinan) | Nilai harus angka desimal rentang 0–100 |
 | Input Kriteria | Bobot harus berupa angka desimal valid |
-| Input Karyawan | NIK dan nama tidak boleh kosong |
+| Input Karyawan | Kode Karyawan dan nama tidak boleh kosong |
 
 ### 4.10.4 Constraint Database
 
 | Constraint | Tabel | Keterangan |
 |---|---|---|
 | `UNIQUE` | `users.username` | Mencegah duplikasi akun |
-| `UNIQUE` | `karyawan.nik` | Mencegah duplikasi NIK |
+| `UNIQUE` | `karyawan.kode_karyawan` | Mencegah duplikasi Kode Karyawan |
 | `UNIQUE KEY unique_penilaian` | `penilaian(id_karyawan, id_kriteria)` | Mencegah duplikasi penilaian |
 | `ON DELETE CASCADE` | `penilaian → karyawan` | Hapus otomatis saat karyawan dihapus |
 | `ON DELETE CASCADE` | `penilaian → kriteria` | Hapus otomatis saat kriteria dihapus |

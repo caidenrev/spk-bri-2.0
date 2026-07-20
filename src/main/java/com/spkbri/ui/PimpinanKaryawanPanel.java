@@ -56,7 +56,7 @@ public class PimpinanKaryawanPanel extends JPanel {
         searchBarPanel.setBackground(null);
         searchBarPanel.setBorder(new EmptyBorder(0, 0, 12, 0));
         txtSearch = new JTextField();
-        txtSearch.putClientProperty("JTextField.placeholderText", "Cari karyawan berdasarkan nama atau NIK...");
+        txtSearch.putClientProperty("JTextField.placeholderText", "Cari karyawan berdasarkan nama atau Kode Karyawan...");
         JButton btnSearch = new JButton("Cari");
         btnSearch.setBackground(new Color(0, 82, 162));
         btnSearch.setForeground(Color.WHITE);
@@ -68,7 +68,7 @@ public class PimpinanKaryawanPanel extends JPanel {
         tablePanel.add(searchBarPanel, BorderLayout.NORTH);
 
         // Table — read-only, tidak bisa di-edit
-        tableModel = new DefaultTableModel(new Object[]{"No", "NIK", "Nama Karyawan", "Divisi"}, 0) {
+        tableModel = new DefaultTableModel(new Object[]{"No", "Kode Karyawan", "Nama Karyawan", "Divisi"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -104,7 +104,7 @@ public class PimpinanKaryawanPanel extends JPanel {
         tableModel.setRowCount(0);
         String sql = "SELECT * FROM karyawan";
         if (!keyword.isEmpty()) {
-            sql += " WHERE nama LIKE ? OR nik LIKE ?";
+            sql += " WHERE nama LIKE ? OR kode_karyawan LIKE ?";
         }
         sql += " ORDER BY divisi ASC, nama ASC";
 
@@ -119,7 +119,7 @@ public class PimpinanKaryawanPanel extends JPanel {
                 while (rs.next()) {
                     tableModel.addRow(new Object[]{
                             no++,
-                            rs.getString("nik"),
+                            rs.getString("kode_karyawan"),
                             rs.getString("nama"),
                             rs.getString("divisi")
                     });

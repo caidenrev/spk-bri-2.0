@@ -68,7 +68,7 @@ Metode MOORA dalam aplikasi ini bekerja dengan langkah-langkah berikut:
 Aplikasi menggunakan database MySQL (`spk_moora`) dengan tabel sebagai berikut:
 
 - **`users`**: Menyimpan data akun login beserta role (`admin` / `pimpinan`).
-- **`karyawan`**: Menyimpan data karyawan (NIK, nama, divisi).
+- **`karyawan`**: Menyimpan data karyawan (Kode Karyawan, nama, divisi).
 - **`kriteria`**: Menyimpan kriteria penilaian (kode, nama, sifat [Benefit/Cost], bobot, divisi).
 - **`penilaian`**: Menyimpan nilai yang diberikan untuk setiap karyawan per kriteria (kombinasi `id_karyawan` dan `id_kriteria` bersifat unik).
 

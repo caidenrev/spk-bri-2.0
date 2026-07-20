@@ -94,7 +94,7 @@ public class ReportPanel extends JPanel {
             add(toolbar, BorderLayout.NORTH);
 
             // Table
-            tableModel = new DefaultTableModel(new Object[]{"Rank", "NIK", "Nama Karyawan", "Divisi", "Score (Yi)"}, 0) {
+            tableModel = new DefaultTableModel(new Object[]{"Rank", "Kode Karyawan", "Nama Karyawan", "Divisi", "Score (Yi)"}, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
                     return false;
@@ -173,7 +173,7 @@ public class ReportPanel extends JPanel {
                     for (RankingResult r : rankingResults) {
                         tableModel.addRow(new Object[]{
                                 r.getRank(),
-                                r.getKaryawan().getNik(),
+                                r.getKaryawan().getKodeKaryawan(),
                                 r.getKaryawan().getNama(),
                                 r.getKaryawan().getDivisi(),
                                 df.format(r.getScore())
@@ -186,7 +186,7 @@ public class ReportPanel extends JPanel {
                                 "<div style='font-family: \"Segoe UI\", sans-serif;'>" +
                                 "  <span style='font-size: 11px; font-weight: bold; color: #2e7d32; text-transform: uppercase;'>Rekomendasi Karyawan Terbaik</span><br>" +
                                 "  <span style='font-size: 18px; font-weight: bold; color: #1e4620;'>" + best.getKaryawan().getNama() + "</span>" +
-                                "  <span style='font-size: 12px; color: #555;'> (NIK: " + best.getKaryawan().getNik() + ")</span><br>" +
+                                "  <span style='font-size: 12px; color: #555;'> (Kode: " + best.getKaryawan().getKodeKaryawan() + ")</span><br>" +
                                 "  <span style='font-size: 13px; color: #333;'>Berdasarkan hasil kalkulasi metode MOORA, karyawan ini menduduki peringkat pertama dengan skor optimasi (Yi) tertinggi sebesar <b>" + df.format(best.getScore()) + "</b>.</span>" +
                                 "</div></html>");
                         conclusionPanel.setBackground(new Color(230, 245, 235)); // soft green

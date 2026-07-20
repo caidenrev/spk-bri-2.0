@@ -28,7 +28,7 @@ public class MooraEngine {
                     while (rs.next()) {
                         Karyawan k = new Karyawan(
                                 rs.getInt("id_karyawan"),
-                                rs.getString("nik"),
+                                rs.getString("kode_karyawan"),
                                 rs.getString("nama"),
                                 rs.getString("divisi")
                         );

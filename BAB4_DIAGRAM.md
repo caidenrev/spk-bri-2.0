@@ -135,13 +135,13 @@ start
 
 fork
   :TAMBAH KARYAWAN;
-  :Input NIK, Nama, Divisi;
+  :Input Kode Karyawan, Nama, Divisi;
   if (Field kosong?) then (Ya)
     :Tampil pesan warning;
   else (Tidak)
     :INSERT INTO karyawan;
-    if (NIK sudah ada?) then (Ya)
-      :Tampil pesan error duplikat NIK;
+    if (Kode Karyawan sudah ada?) then (Ya)
+      :Tampil pesan error duplikat Kode Karyawan;
     else (Tidak)
       :Data berhasil disimpan;
       :Refresh tabel & Dashboard;
@@ -169,7 +169,7 @@ fork again
 fork again
   :CARI KARYAWAN;
   :Input kata kunci;
-  :SELECT * FROM karyawan\nWHERE nama LIKE ? OR nik LIKE ?;
+  :SELECT * FROM karyawan\nWHERE nama LIKE ? OR kode_karyawan LIKE ?;
   :Tampil hasil pencarian;
 end fork
 stop
@@ -485,12 +485,12 @@ title Class Diagram — SPK MOORA BRI KCP Arundina (Multi-Role)
 
 class Karyawan {
   - idKaryawan : int
-  - nik : String
+  - kodeKaryawan : String
   - nama : String
   - divisi : String
   --
   + getIdKaryawan() : int
-  + getNik() : String
+  + getKodeKaryawan() : String
   + getNama() : String
   + getDivisi() : String
 }
@@ -712,7 +712,7 @@ entity "users" as users {
 entity "karyawan" as karyawan {
   * id_karyawan : INT <<PK, AUTO_INCREMENT>>
   --
-  * nik         : VARCHAR(100) <<UNIQUE>>
+  * kode_karyawan : VARCHAR(100) <<UNIQUE>>
   * nama        : VARCHAR(255)
   * divisi      : VARCHAR(50)
 }
@@ -868,6 +868,122 @@ database "MySQL\nspk_moora" as db
 @enduml
 ```
 
+## 13. Flowchart Sistem yang Berjalan (Gambar 3)
+
+```plantuml
+@startuml FlowchartSistemBerjalan
+skinparam Style strictuml
+skinparam activity {
+  BackgroundColor #FADBD8
+  BorderColor #C0392B
+  ArrowColor #2C3E50
+}
+
+|admin|
+start
+:mulai|
+:buat akun juri]
+:input Fakultas dan Prodi/
+:input Kategori & Subkategori/
+:buat form penilaian/
+
+|sistem|
+database database as db
+
+|admin|
+:buat akun juri] --> db
+:input Fakultas dan Prodi/ --> db
+:input Kategori & Subkategori/ --> db
+:buat form penilaian/ --> db
+
+|juri|
+:masuk akun]
+:input penilaian/
+
+|sistem|
+|juri|
+:input penilaian/ --> |sistem| db
+
+|juri|
+:data penilaian]
+|sistem|
+db --> |juri| :data penilaian]
+
+|admin|
+:rekapitulasi penilaian setiap juri|
+|juri|
+:data penilaian] --> |admin| :rekapitulasi penilaian setiap juri|
+
+|admin|
+:rekapitulasi penilaian setiap juri| --> :data rekapitulasi]
+:data rekapitulasi] --> :selesai|
+stop
+@enduml
+```
+
+---
+
+## 14. Flowchart Sistem yang Akan Dikembangkan (Gambar 4)
+
+```plantuml
+@startuml FlowchartSistemAkanDikembangkan
+skinparam Style strictuml
+skinparam activity {
+  BackgroundColor #EBF5FB
+  BorderColor #2980B9
+  ArrowColor #2C3E50
+}
+
+|admin|
+start
+:mulai|
+:buat akun juri]
+:input Fakultas dan Prodi/
+:input Kategori & Subkategori/
+:buat form penilaian/
+
+|sistem|
+database database as db
+
+|admin|
+:buat akun juri] --> db
+:input Fakultas dan Prodi/ --> db
+:input Kategori & Subkategori/ --> db
+:buat form penilaian/ --> db
+
+|juri|
+:masuk akun]
+:input penilaian/
+
+|sistem|
+:metode moora|
+|juri|
+:input penilaian/ --> |sistem| :metode moora|
+
+|sistem|
+:metode moora| --> :penjumlahan matriks keputusan|
+:penjumlahan matriks keputusan| --> :normalisasi matriks keputusan|
+:normalisasi matriks keputusan| --> :normalisasi matriks keputusan berbobot|
+:normalisasi matriks keputusan berbobot| --> :hasil perhitungan moora|
+:hasil perhitungan moora| --> db
+
+|juri|
+:data penilaian]
+|sistem|
+db --> |juri| :data penilaian]
+
+|admin|
+:rekapitulasi penilaian setiap juri|
+|juri|
+:data penilaian] --> |admin| :rekapitulasi penilaian setiap juri|
+
+|admin|
+:rekapitulasi penilaian setiap juri| --> :data rekapitulasi]
+:data rekapitulasi] --> :selesai|
+stop
+@enduml
+```
+
 ---
 
 ## Catatan Penggunaan
@@ -896,3 +1012,6 @@ Untuk merender diagram, gunakan salah satu:
 | 10 | ERD (dengan kolom role) | Database Design | Bab 3 — Perancangan Database |
 | 11 | Deployment Diagram | UML Structural | Bab 4 — Implementasi |
 | 12 | Component Diagram (Multi-Role) | UML Structural | Bab 3 / Bab 4 |
+| 13 | Flowchart Sistem yang Berjalan | Flowchart | Bab 3 / Bab 4 |
+| 14 | Flowchart Sistem yang Akan Dikembangkan | Flowchart | Bab 3 / Bab 4 |
+

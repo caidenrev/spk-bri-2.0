@@ -86,7 +86,7 @@ public class PimpinanRankingPanel extends JPanel {
 
             // Tabel ranking
             tableModel = new DefaultTableModel(
-                    new Object[]{"Rank", "NIK", "Nama Karyawan", "Divisi", "Score (Yi)"}, 0) {
+                    new Object[]{"Rank", "Kode Karyawan", "Nama Karyawan", "Divisi", "Score (Yi)"}, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
                     return false;
@@ -172,7 +172,7 @@ public class PimpinanRankingPanel extends JPanel {
                     for (RankingResult r : rankingResults) {
                         tableModel.addRow(new Object[]{
                                 r.getRank(),
-                                r.getKaryawan().getNik(),
+                                r.getKaryawan().getKodeKaryawan(),
                                 r.getKaryawan().getNama(),
                                 r.getKaryawan().getDivisi(),
                                 df.format(r.getScore())
@@ -185,7 +185,7 @@ public class PimpinanRankingPanel extends JPanel {
                                 "<div style='font-family:\"Segoe UI\",sans-serif;'>" +
                                 "<span style='font-size:11px;font-weight:bold;color:#2e7d32;'>KARYAWAN TERBAIK — DIVISI " + divisi.toUpperCase() + "</span><br>" +
                                 "<span style='font-size:17px;font-weight:bold;color:#1a5e20;'>🏆 " + best.getKaryawan().getNama() + "</span>" +
-                                "<span style='font-size:12px;color:#555;'>&nbsp;&nbsp;NIK: " + best.getKaryawan().getNik() + "</span><br>" +
+                                "<span style='font-size:12px;color:#555;'>&nbsp;&nbsp;Kode: " + best.getKaryawan().getKodeKaryawan() + "</span><br>" +
                                 "<span style='font-size:12px;color:#333;'>Skor Optimasi (Yi): <b>" + df.format(best.getScore()) + "</b> &nbsp;|&nbsp; " +
                                 "Total karyawan dievaluasi: <b>" + rankingResults.size() + "</b></span>" +
                                 "</div></html>");
