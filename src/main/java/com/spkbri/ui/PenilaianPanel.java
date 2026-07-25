@@ -196,7 +196,7 @@ public class PenilaianPanel extends JPanel {
             pnlKeputusanMatrix.setBackground(Color.WHITE);
             pnlKeputusanMatrix.setBorder(BorderFactory.createTitledBorder(
                     BorderFactory.createLineBorder(new Color(200, 200, 200)),
-                    "Matriks Keputusan (Skala 1-5)",
+                    "Matriks Keputusan (Skala 1-100)",
                     TitledBorder.LEFT,
                     TitledBorder.TOP,
                     new Font("Segoe UI", Font.BOLD, 12),
@@ -498,8 +498,8 @@ public class PenilaianPanel extends JPanel {
                     String valStr = gridKeputusan[r][c].getText().trim();
                     try {
                         double val = Double.parseDouble(valStr);
-                        if (val < 1 || val > 5) {
-                            JOptionPane.showMessageDialog(this, "Nilai harus di antara rentang skala 1 sampai 5!", "Validasi", JOptionPane.ERROR_MESSAGE);
+                        if (val < 1 || val > 100) {
+                            JOptionPane.showMessageDialog(this, "Nilai harus di antara rentang skala 1 sampai 100!", "Validasi", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
                         matrix[r][c] = val;
@@ -552,8 +552,8 @@ public class PenilaianPanel extends JPanel {
                             String valStr = gridKeputusan[r][c].getText().trim();
                             double val = Double.parseDouble(valStr);
 
-                            if (val < 1 || val > 5) {
-                                throw new NumberFormatException("Nilai diluar range 1-5");
+                            if (val < 1 || val > 100) {
+                                throw new NumberFormatException("Nilai diluar range 1-100");
                             }
 
                             pstmt.setInt(1, karyawanId);

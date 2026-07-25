@@ -57,15 +57,15 @@ Sebelum menjalankan aplikasi, pastikan komputer Anda telah memenuhi persyaratan 
 Menu ini didesain persis seperti matriks pembanding untuk memudahkan input massal:
 1.  Klik **CARI DATA KARYAWAN** di panel kiri.
 2.  Centang nama-nama karyawan yang ingin dinilai (maksimal 5 karyawan sekaligus), lalu klik **PILIH**.
-3.  Baris pada **Matriks Keputusan (Skala 1-5)** di sebelah kanan akan aktif secara otomatis untuk karyawan yang dipilih.
-4.  Ketik nilai performa untuk masing-masing kriteria dengan ketentuan **skala 1.0 sampai 5.0** (misal: 4.5).
+3.  Baris pada **Matriks Keputusan (Skala 1-100)** di sebelah kanan akan aktif secara otomatis untuk karyawan yang dipilih.
+4.  Ketik nilai performa untuk masing-masing kriteria dengan ketentuan **skala 1 sampai 100** (misal: 85).
 5.  *(Opsional)* Klik **MULAI HITUNG** untuk memicu kalkulasi matriks normalisasi lokal secara realtime pada grid **Matriks Normalisasi**.
 6.  Klik **SIMPAN** untuk merekam seluruh nilai keputusan ke database.
 7.  Tabel **Riwayat Perankingan** di bagian bawah kanan akan terisi secara otomatis memperlihatkan rekapitulasi nilai dan skor akhir Yi.
 
 #### E. Menu Laporan & Ranking
 *   Menyajikan hasil evaluasi komprehensif MOORA per divisi dalam 4 sub-tab:
-    1.  **1. Matriks Keputusan**: Nilai rating skala 1-5 yang tersimpan.
+    1.  **1. Matriks Keputusan**: Nilai rating skala 1-100 yang tersimpan.
     2.  **2. Matriks Normalisasi**: Hasil normalisasi rasio pembagi kuadrat.
     3.  **3. Normalisasi Terbobot**: Hasil kali matriks normalisasi dengan bobot kriteria.
     4.  **4. Hasil Akhir & Ranking**: Peringkat karyawan dari skor optimasi tertinggi ($Yi$).
@@ -79,7 +79,7 @@ Menu ini didesain persis seperti matriks pembanding untuk memudahkan input massa
 *   Menampilkan daftar karyawan yang terdaftar secara *read-only* (hanya bisa dicari dan dilihat, tanpa tombol tambah/edit/hapus untuk menjaga integritas data master).
 
 #### B. Menu Input Penilaian
-*   Memiliki fungsi yang sama dengan Administrator. Pimpinan dapat memilih hingga 5 karyawan, mengisi matriks keputusan skala 1-5, melakukan simulasi kalkulasi matriks normalisasi, serta menyimpannya ke database.
+*   Memiliki fungsi yang sama dengan Administrator. Pimpinan dapat memilih hingga 5 karyawan, mengisi matriks keputusan skala 1-100, melakukan simulasi kalkulasi matriks normalisasi, serta menyimpannya ke database.
 
 #### C. Menu Hasil Ranking
 *   Menampilkan visualisasi 4 sub-tab perhitungan MOORA secara transparan beserta kesimpulan rekomendasi karyawan terbaik di panel bawah (tanpa tombol cetak/ekspor).

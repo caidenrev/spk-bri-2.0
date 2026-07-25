@@ -264,7 +264,7 @@ Menggunakan `JTabbedPane` per divisi. Field: Kode Kriteria, Nama Kriteria, Sifat
 
 ### 4.6.6 Input Penilaian (`PenilaianPanel`)
 
-Tab per divisi. Alur: pilih karyawan → form nilai dinamis muncul per kriteria → input nilai 1–5 → simpan. Menggunakan upsert:
+Tab per divisi. Alur: pilih karyawan → form nilai dinamis muncul per kriteria → input nilai 1–100 → simpan. Menggunakan upsert:
 
 ```sql
 INSERT INTO penilaian (id_karyawan, id_kriteria, nilai)
@@ -346,7 +346,7 @@ Alur yang sama dengan `PenilaianPanel` milik admin, namun dengan perbedaan:
 ┌──────────────────────────────┐
 │  5. INPUT PENILAIAN          │
 │  - Pilih karyawan            │
-│  - Input nilai 1–5           │
+│  - Input nilai 1–100         │
 │  - Simpan (upsert)           │
 └──────────────┬───────────────┘
                │
@@ -487,7 +487,7 @@ try {
 | Lokasi | Validasi |
 |---|---|
 | Login | Username dan password tidak boleh kosong |
-| Input Penilaian (Admin & Pimpinan) | Nilai harus angka desimal rentang 1–5 |
+| Input Penilaian (Admin & Pimpinan) | Nilai harus angka desimal rentang 1–100 |
 | Input Kriteria | Bobot harus berupa angka desimal valid |
 | Input Karyawan | Kode Karyawan dan nama tidak boleh kosong |
 

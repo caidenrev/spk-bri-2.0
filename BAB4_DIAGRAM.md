@@ -194,15 +194,14 @@ start
 :Pilih maksimal 5 karyawan pada dialog;
 :Load nilai yang sudah ada dari database;
 :Aktifkan baris matriks keputusan terkait;
-:Input nilai kinerja pada grid (skala 1-5);
+:Input nilai kinerja pada grid (skala 1-100);
 
 fork
   :Klik "MULAI HITUNG";
   :Kalkulasi normalisasi lokal;
   :Tampilkan hasil di grid matriks normalisasi;
 fork again
-  :Klik "SIMPAN";
-  :Validasi semua nilai (skala 1-5);
+  :Validasi semua nilai (skala 1-100);
   if (Valid?) then (Ya)
     :Mulai transaksi database;
     :INSERT/UPDATE nilai ke tabel penilaian;
@@ -210,7 +209,7 @@ fork again
     :Tampil pesan sukses;
     :Refresh tabel riwayat di bawah;
   else (Tidak)
-    :Tampil pesan "Nilai harus 1-5";
+    :Tampil pesan "Nilai harus 1-100";
   endif
 end fork
 stop
@@ -433,10 +432,10 @@ deactivate mysql
 panel -> panel : "Render grid matriks keputusan\ndan isi nilai lama jika ada"
 panel --> user : Grid matriks keputusan diaktifkan
 
-user -> panel : "Input / ubah nilai pada grid (skala 1-5)"
+user -> panel : "Input / ubah nilai pada grid (skala 1-100)"
 user -> panel : Klik "SIMPAN"
 
-panel -> panel : "Validasi semua nilai 1 ≤ nilai ≤ 5"
+panel -> panel : "Validasi semua nilai 1 ≤ nilai ≤ 100"
 alt Validasi gagal
   panel --> user : Tampil pesan error validasi
 else Validasi berhasil
