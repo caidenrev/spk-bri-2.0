@@ -1,23 +1,26 @@
 package com.spkbri.ui;
 
+import com.spkbri.core.MooraEngine;
 import com.spkbri.database.DatabaseHelper;
 import com.spkbri.model.Karyawan;
 import com.spkbri.model.Kriteria;
+import com.spkbri.model.RankingResult;
+import com.spkbri.model.MooraCalculationResult;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 public class PimpinanPenilaianPanel extends JPanel {
@@ -36,10 +39,10 @@ public class PimpinanPenilaianPanel extends JPanel {
 
         JPanel textPanel = new JPanel(new GridLayout(2, 1));
         textPanel.setBackground(null);
-        JLabel title = new JLabel("PROSES PERHITUNGAN BOBOT KRITERIA AHP (PIMPINAN)");
+        JLabel title = new JLabel("PROSES PERHITUNGAN DAN INPUT PENILAIAN MOORA KARYAWAN (PIMPINAN)");
         title.setFont(new Font("Segoe UI", Font.BOLD, 20));
         title.setForeground(new Color(0, 82, 162));
-        JLabel subtitle = new JLabel("Menentukan bobot kriteria secara objektif melalui matriks perbandingan berpasangan (pairwise comparison)");
+        JLabel subtitle = new JLabel("Form perbandingan penilaian karyawan, kalkulasi matriks keputusan, normalisasi, dan perankingan");
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         subtitle.setForeground(Color.GRAY);
         textPanel.add(title);
@@ -77,8 +80,8 @@ public class PimpinanPenilaianPanel extends JPanel {
         // Right Matrix Components
         private JPanel pnlKeputusanMatrix;
         private JPanel pnlNormalisasiMatrix;
-        private JTextField[][] gridComparison; // [kriteria N][kriteria N]
-        private JTextField[][] gridNormalisasi; // [kriteria N][kriteria N + 1 (Prioritas)]
+        private JTextField[][] gridKeputusan; // [karyawan 0-4][kriteria 0-N]
+        private JTextField[][] gridNormalisasi; // [karyawan 0-4][kriteria 0-N]
 
         // Bottom Table Components
         private JTable tblHistory;
@@ -86,7 +89,6 @@ public class PimpinanPenilaianPanel extends JPanel {
 
         private List<Kriteria> kriteriaList = new ArrayList<>();
         private List<Karyawan> allKaryawanList = new ArrayList<>();
-        private double[] calculatedPriorities;
 
         public PimpinanPenilaianDivisiPanel(String divisi) {
             this.divisi = divisi;
@@ -159,7 +161,7 @@ public class PimpinanPenilaianPanel extends JPanel {
             btnSimpan.setBackground(new Color(40, 167, 69));
             btnSimpan.setForeground(Color.WHITE);
             btnSimpan.setFont(new Font("Segoe UI", Font.BOLD, 10));
-            btnSimpan.addActionListener(e -> saveAHPWeights());
+            btnSimpan.addActionListener(e -> savePenilaian());
             JButton btnHapus = new JButton("HAPUS");
             btnHapus.setBackground(new Color(220, 53, 69));
             btnHapus.setForeground(Color.WHITE);
@@ -176,7 +178,7 @@ public class PimpinanPenilaianPanel extends JPanel {
             btnMulaiHitung.setForeground(Color.WHITE);
             btnMulaiHitung.setFont(new Font("Segoe UI", Font.BOLD, 13));
             btnMulaiHitung.setPreferredSize(new Dimension(200, 38));
-            btnMulaiHitung.addActionListener(e -> calculateAHPPriorities());
+            btnMulaiHitung.addActionListener(e -> calculateMOORAOnGrid());
             leftPanel.add(btnMulaiHitung, gbc);
 
             add(leftPanel, BorderLayout.WEST);
@@ -193,7 +195,7 @@ public class PimpinanPenilaianPanel extends JPanel {
             pnlKeputusanMatrix.setBackground(Color.WHITE);
             pnlKeputusanMatrix.setBorder(BorderFactory.createTitledBorder(
                     BorderFactory.createLineBorder(new Color(200, 200, 200)),
-                    "Matriks Perbandingan Kriteria",
+                    "Matriks Keputusan (Skala 1-100)",
                     TitledBorder.LEFT,
                     TitledBorder.TOP,
                     new Font("Segoe UI", Font.BOLD, 12),
@@ -204,7 +206,7 @@ public class PimpinanPenilaianPanel extends JPanel {
             pnlNormalisasiMatrix.setBackground(Color.WHITE);
             pnlNormalisasiMatrix.setBorder(BorderFactory.createTitledBorder(
                     BorderFactory.createLineBorder(new Color(200, 200, 200)),
-                    "Matriks Normalisasi Kriteria",
+                    "Matriks Normalisasi",
                     TitledBorder.LEFT,
                     TitledBorder.TOP,
                     new Font("Segoe UI", Font.BOLD, 12),
@@ -224,7 +226,7 @@ public class PimpinanPenilaianPanel extends JPanel {
             scrollTable.setPreferredSize(new Dimension(500, 250));
             scrollTable.setBorder(BorderFactory.createTitledBorder(
                     BorderFactory.createLineBorder(new Color(200, 200, 200)),
-                    "Riwayat Perhitungan Bobot Kriteria",
+                    "Riwayat Perankingan Evaluasi",
                     TitledBorder.LEFT,
                     TitledBorder.TOP,
                     new Font("Segoe UI", Font.BOLD, 12),
@@ -289,8 +291,10 @@ public class PimpinanPenilaianPanel extends JPanel {
             pnlKeputusanMatrix.removeAll();
             pnlNormalisasiMatrix.removeAll();
 
-            int n = kriteriaList.size();
-            if (n == 0) {
+            int rows = 5;
+            int cols = kriteriaList.size();
+
+            if (cols == 0) {
                 pnlKeputusanMatrix.add(new JLabel("Kriteria kosong"));
                 pnlNormalisasiMatrix.add(new JLabel("Kriteria kosong"));
                 pnlKeputusanMatrix.revalidate();
@@ -300,14 +304,15 @@ public class PimpinanPenilaianPanel extends JPanel {
                 return;
             }
 
-            pnlKeputusanMatrix.setLayout(new GridLayout(n + 1, n + 1, 5, 5));
-            pnlNormalisasiMatrix.setLayout(new GridLayout(n + 1, n + 2, 5, 5));
+            pnlKeputusanMatrix.setLayout(new GridLayout(rows + 1, cols + 1, 5, 5));
+            pnlNormalisasiMatrix.setLayout(new GridLayout(rows + 1, cols + 1, 5, 5));
 
-            gridComparison = new JTextField[n][n];
-            gridNormalisasi = new JTextField[n][n + 1];
+            gridKeputusan = new JTextField[rows][cols];
+            gridNormalisasi = new JTextField[rows][cols];
 
-            pnlKeputusanMatrix.add(new JLabel("", JLabel.CENTER));
-            pnlNormalisasiMatrix.add(new JLabel("", JLabel.CENTER));
+            // Header Labels
+            pnlKeputusanMatrix.add(new JLabel("Karyawan", JLabel.CENTER));
+            pnlNormalisasiMatrix.add(new JLabel("Karyawan", JLabel.CENTER));
             for (Kriteria kr : kriteriaList) {
                 JLabel lblK1 = new JLabel(kr.getKodeKriteria(), JLabel.CENTER);
                 lblK1.setFont(new Font("Segoe UI", Font.BOLD, 11));
@@ -317,54 +322,22 @@ public class PimpinanPenilaianPanel extends JPanel {
                 lblK2.setFont(new Font("Segoe UI", Font.BOLD, 11));
                 pnlNormalisasiMatrix.add(lblK2);
             }
-            JLabel lblPrioritasHeader = new JLabel("Prioritas", JLabel.CENTER);
-            lblPrioritasHeader.setFont(new Font("Segoe UI", Font.BOLD, 11));
-            pnlNormalisasiMatrix.add(lblPrioritasHeader);
 
-            DecimalFormat df = new DecimalFormat("0.00");
-
-            for (int r = 0; r < n; r++) {
-                JLabel lblRowHeaderKep = new JLabel(kriteriaList.get(r).getKodeKriteria(), JLabel.CENTER);
-                lblRowHeaderKep.setFont(new Font("Segoe UI", Font.BOLD, 11));
+            // Create Grid Rows
+            for (int r = 0; r < rows; r++) {
+                JLabel lblRowHeaderKep = new JLabel("E" + (r + 1), JLabel.CENTER);
                 lblRowHeaderKep.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
                 pnlKeputusanMatrix.add(lblRowHeaderKep);
 
-                JLabel lblRowHeaderNorm = new JLabel(kriteriaList.get(r).getKodeKriteria(), JLabel.CENTER);
-                lblRowHeaderNorm.setFont(new Font("Segoe UI", Font.BOLD, 11));
+                JLabel lblRowHeaderNorm = new JLabel("E" + (r + 1), JLabel.CENTER);
                 lblRowHeaderNorm.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
                 pnlNormalisasiMatrix.add(lblRowHeaderNorm);
 
-                for (int c = 0; c < n; c++) {
-                    gridComparison[r][c] = new JTextField();
-                    gridComparison[r][c].setHorizontalAlignment(JTextField.CENTER);
-                    
-                    if (r == c) {
-                        gridComparison[r][c].setText("1");
-                        gridComparison[r][c].setEditable(false);
-                        gridComparison[r][c].setBackground(new Color(245, 247, 250));
-                    } else {
-                        gridComparison[r][c].setText("1");
-                        final int row = r;
-                        final int col = c;
-                        gridComparison[r][c].addFocusListener(new FocusAdapter() {
-                            @Override
-                            public void focusLost(FocusEvent e) {
-                                try {
-                                    String valStr = gridComparison[row][col].getText().trim();
-                                    double val = Double.parseDouble(valStr);
-                                    if (val <= 0) throw new NumberFormatException();
-                                    
-                                    double recip = 1.0 / val;
-                                    gridComparison[col][row].setText(df.format(recip).replace(",", "."));
-                                } catch (NumberFormatException ex) {
-                                    JOptionPane.showMessageDialog(PimpinanPenilaianDivisiPanel.this, "Masukkan nilai numerik positif!");
-                                    gridComparison[row][col].setText("1");
-                                    gridComparison[col][row].setText("1");
-                                }
-                            }
-                        });
-                    }
-                    pnlKeputusanMatrix.add(gridComparison[r][c]);
+                for (int c = 0; c < cols; c++) {
+                    gridKeputusan[r][c] = new JTextField("0");
+                    gridKeputusan[r][c].setHorizontalAlignment(JTextField.CENTER);
+                    gridKeputusan[r][c].setEnabled(false);
+                    pnlKeputusanMatrix.add(gridKeputusan[r][c]);
 
                     gridNormalisasi[r][c] = new JTextField("");
                     gridNormalisasi[r][c].setHorizontalAlignment(JTextField.CENTER);
@@ -372,13 +345,6 @@ public class PimpinanPenilaianPanel extends JPanel {
                     gridNormalisasi[r][c].setBackground(new Color(245, 247, 250));
                     pnlNormalisasiMatrix.add(gridNormalisasi[r][c]);
                 }
-
-                gridNormalisasi[r][n] = new JTextField("");
-                gridNormalisasi[r][n].setHorizontalAlignment(JTextField.CENTER);
-                gridNormalisasi[r][n].setEditable(false);
-                gridNormalisasi[r][n].setBackground(new Color(230, 245, 230));
-                gridNormalisasi[r][n].setFont(new Font("Segoe UI", Font.BOLD, 12));
-                pnlNormalisasiMatrix.add(gridNormalisasi[r][n]);
             }
 
             pnlKeputusanMatrix.revalidate();
@@ -442,6 +408,12 @@ public class PimpinanPenilaianPanel extends JPanel {
                     selectedKaryawanIds[i] = k.getIdKaryawan();
                     txtKaryawanKode[i].setText(k.getKodeKaryawan());
                     txtKaryawanNama[i].setText(k.getNama());
+
+                    for (int c = 0; c < kriteriaList.size(); c++) {
+                        gridKeputusan[i][c].setEnabled(true);
+                    }
+
+                    loadExistingScores(i, k.getIdKaryawan());
                 }
 
                 dialog.dispose();
@@ -451,92 +423,143 @@ public class PimpinanPenilaianPanel extends JPanel {
             dialog.setVisible(true);
         }
 
+        private void loadExistingScores(int rowIndex, int karyawanId) {
+            String sql = "SELECT id_kriteria, nilai FROM penilaian WHERE id_karyawan = ?";
+            try (Connection conn = DatabaseHelper.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, karyawanId);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    while (rs.next()) {
+                        int critId = rs.getInt("id_kriteria");
+                        double val = rs.getDouble("nilai");
+
+                        for (int colIndex = 0; colIndex < kriteriaList.size(); colIndex++) {
+                            if (kriteriaList.get(colIndex).getIdKriteria() == critId) {
+                                gridKeputusan[rowIndex][colIndex].setText(String.valueOf(val));
+                                break;
+                            }
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
         private void clearSelectedKaryawan() {
             for (int i = 0; i < 5; i++) {
                 selectedKaryawanIds[i] = -1;
                 txtKaryawanKode[i].setText("");
                 txtKaryawanNama[i].setText("");
             }
+            for (int r = 0; r < 5; r++) {
+                for (int c = 0; c < kriteriaList.size(); c++) {
+                    if (gridKeputusan != null && gridKeputusan[r][c] != null) {
+                        gridKeputusan[r][c].setText("0");
+                        gridKeputusan[r][c].setEnabled(false);
+                    }
+                    if (gridNormalisasi != null && gridNormalisasi[r][c] != null) {
+                        gridNormalisasi[r][c].setText("");
+                    }
+                }
+            }
         }
 
         private void resetInputs() {
             clearSelectedKaryawan();
             txtKodePerhitungan.setText("KARYAWAN_" + (System.currentTimeMillis() % 100));
-            int n = kriteriaList.size();
-            for (int r = 0; r < n; r++) {
-                for (int c = 0; c < n; c++) {
-                    gridComparison[r][c].setText("1");
-                    gridNormalisasi[r][c].setText("");
-                }
-                gridNormalisasi[r][n].setText("");
-            }
         }
 
-        private void calculateAHPPriorities() {
-            int n = kriteriaList.size();
-            double[][] matrix = new double[n][n];
+        private void calculateMOORAOnGrid() {
+            int count = 0;
+            for (int id : selectedKaryawanIds) {
+                if (id != -1) count++;
+            }
 
-            for (int r = 0; r < n; r++) {
-                for (int c = 0; c < n; c++) {
+            if (count == 0) {
+                JOptionPane.showMessageDialog(this, "Silakan pilih karyawan terlebih dahulu!", "Warning", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int cols = kriteriaList.size();
+            double[][] matrix = new double[count][cols];
+
+            for (int r = 0; r < count; r++) {
+                for (int c = 0; c < cols; c++) {
+                    String valStr = gridKeputusan[r][c].getText().trim();
                     try {
-                        matrix[r][c] = Double.parseDouble(gridComparison[r][c].getText().trim());
+                        double val = Double.parseDouble(valStr);
+                        if (val < 1 || val > 100) {
+                            JOptionPane.showMessageDialog(this, "Nilai harus di antara rentang skala 1 sampai 100!", "Validasi", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                        matrix[r][c] = val;
                     } catch (NumberFormatException ex) {
-                        JOptionPane.showMessageDialog(this, "Format angka salah pada baris " + (r+1) + " kolom " + (c+1));
+                        JOptionPane.showMessageDialog(this, "Semua input nilai harus berupa angka desimal!", "Validasi", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                 }
             }
 
-            double[] colSums = new double[n];
-            for (int c = 0; c < n; c++) {
-                double sum = 0.0;
-                for (int r = 0; r < n; r++) {
-                    sum += matrix[r][c];
-                }
-                colSums[c] = sum;
-            }
-
-            calculatedPriorities = new double[n];
             DecimalFormat df = new DecimalFormat("0.0000");
-
-            for (int r = 0; r < n; r++) {
-                double rowSumNorm = 0.0;
-                for (int c = 0; c < n; c++) {
-                    double normVal = matrix[r][c] / colSums[c];
-                    gridNormalisasi[r][c].setText(df.format(normVal).replace(",", "."));
-                    rowSumNorm += normVal;
+            for (int c = 0; c < cols; c++) {
+                double sumSq = 0.0;
+                for (int r = 0; r < count; r++) {
+                    sumSq += matrix[r][c] * matrix[r][c];
                 }
-                calculatedPriorities[r] = rowSumNorm / n;
-                gridNormalisasi[r][n].setText(df.format(calculatedPriorities[r]).replace(",", "."));
-            }
+                double denominator = Math.sqrt(sumSq);
+                if (denominator == 0.0) denominator = 1.0;
 
-            JOptionPane.showMessageDialog(this, "Perhitungan AHP prioritas kriteria berhasil!");
+                for (int r = 0; r < count; r++) {
+                    double normalizedVal = matrix[r][c] / denominator;
+                    gridNormalisasi[r][c].setText(df.format(normalizedVal).replace(",", "."));
+                }
+            }
+            JOptionPane.showMessageDialog(this, "Kalkulasi matriks normalisasi berhasil!");
         }
 
-        private void saveAHPWeights() {
-            if (calculatedPriorities == null) {
-                JOptionPane.showMessageDialog(this, "Silakan klik MULAI HITUNG terlebih dahulu!", "Warning", JOptionPane.WARNING_MESSAGE);
+        private void savePenilaian() {
+            int count = 0;
+            for (int id : selectedKaryawanIds) {
+                if (id != -1) count++;
+            }
+
+            if (count == 0) {
+                JOptionPane.showMessageDialog(this, "Pilih karyawan dan masukkan nilai terlebih dahulu!", "Warning", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
             try (Connection conn = DatabaseHelper.getConnection()) {
                 conn.setAutoCommit(false);
-                String sql = "UPDATE kriteria SET bobot = ? WHERE id_kriteria = ?";
+                String sql = "INSERT INTO penilaian (id_karyawan, id_kriteria, nilai) VALUES (?, ?, ?) " +
+                        "ON DUPLICATE KEY UPDATE nilai = VALUES(nilai)";
 
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                    for (int i = 0; i < kriteriaList.size(); i++) {
-                        pstmt.setDouble(1, calculatedPriorities[i]);
-                        pstmt.setInt(2, kriteriaList.get(i).getIdKriteria());
-                        pstmt.addBatch();
+                    for (int r = 0; r < count; r++) {
+                        int karyawanId = selectedKaryawanIds[r];
+                        for (int c = 0; c < kriteriaList.size(); c++) {
+                            int kriteriaId = kriteriaList.get(c).getIdKriteria();
+                            String valStr = gridKeputusan[r][c].getText().trim();
+                            double val = Double.parseDouble(valStr);
+
+                            if (val < 1 || val > 100) {
+                                throw new NumberFormatException("Nilai diluar range 1-100");
+                            }
+
+                            pstmt.setInt(1, karyawanId);
+                            pstmt.setInt(2, kriteriaId);
+                            pstmt.setDouble(3, val);
+                            pstmt.addBatch();
+                        }
                     }
                     pstmt.executeBatch();
                     conn.commit();
-                    JOptionPane.showMessageDialog(this, "Bobot kriteria baru berhasil disimpan ke database!");
+                    JOptionPane.showMessageDialog(this, "Penilaian matriks berhasil disimpan ke database!");
                     loadHistoryTable();
                 } catch (Exception e) {
                     conn.rollback();
                     e.printStackTrace();
-                    JOptionPane.showMessageDialog(this, "Gagal menyimpan bobot: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Gagal menyimpan penilaian: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 } finally {
                     conn.setAutoCommit(true);
                 }
@@ -547,30 +570,33 @@ public class PimpinanPenilaianPanel extends JPanel {
 
         private void loadHistoryTable() {
             Vector<String> columns = new Vector<>();
-            columns.add("Kode Perhitungan");
+            columns.add("Rank");
+            columns.add("Kode Karyawan");
+            columns.add("Nama Karyawan");
             for (Kriteria kr : kriteriaList) {
-                columns.add(kr.getKodeKriteria() + " (Weight)");
+                columns.add(kr.getKodeKriteria());
             }
+            columns.add("Skor (Yi)");
 
             Vector<Vector<Object>> data = new Vector<>();
-            
-            Vector<Object> row = new Vector<>();
-            row.add(txtKodePerhitungan.getText());
+            MooraCalculationResult calcResult = MooraEngine.calculate(divisi);
+            List<RankingResult> ranking = calcResult.getRankingResults();
+            Map<Integer, Map<Integer, Double>> matriksKeputusan = calcResult.getMatriksKeputusan();
+
             DecimalFormat df = new DecimalFormat("0.0000");
-            
-            String sql = "SELECT bobot FROM kriteria WHERE divisi = ? ORDER BY kode_kriteria ASC";
-            try (Connection conn = DatabaseHelper.getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, divisi);
-                try (ResultSet rs = pstmt.executeQuery()) {
-                    while (rs.next()) {
-                        row.add(df.format(rs.getDouble("bobot")).replace(",", "."));
-                    }
+            for (RankingResult r : ranking) {
+                Vector<Object> row = new Vector<>();
+                row.add(r.getRank());
+                row.add(r.getKaryawan().getKodeKaryawan());
+                row.add(r.getKaryawan().getNama());
+
+                Map<Integer, Double> nilaiMap = matriksKeputusan.get(r.getKaryawan().getIdKaryawan());
+                for (Kriteria kr : kriteriaList) {
+                    row.add(nilaiMap != null ? nilaiMap.getOrDefault(kr.getIdKriteria(), 0.0) : 0.0);
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
+                row.add(df.format(r.getScore()).replace(",", "."));
+                data.add(row);
             }
-            data.add(row);
 
             tableModel.setDataVector(data, columns);
         }
