@@ -57,6 +57,12 @@ public class ReportPanel extends JPanel {
         private String divisi;
         private JTable tblRanking;
         private DefaultTableModel tableModel;
+        private JTable tblKeputusan;
+        private DefaultTableModel modelKeputusan;
+        private JTable tblNormalisasi;
+        private DefaultTableModel modelNormalisasi;
+        private JTable tblNormalisasiTerbobot;
+        private DefaultTableModel modelNormalisasiTerbobot;
         private List<RankingResult> rankingResults = new ArrayList<>();
         private JPanel conclusionPanel;
         private JLabel lblConclusion;
@@ -93,7 +99,41 @@ public class ReportPanel extends JPanel {
             toolbar.add(btnExcel);
             add(toolbar, BorderLayout.NORTH);
 
-            // Table
+            // JTabbedPane internal untuk menampilkan langkah perhitungan
+            JTabbedPane calculationTabs = new JTabbedPane();
+            calculationTabs.setFont(new Font("Segoe UI", Font.BOLD, 11));
+
+            // Tab 1: Matriks Keputusan
+            modelKeputusan = new DefaultTableModel() {
+                @Override
+                public boolean isCellEditable(int row, int col) { return false; }
+            };
+            tblKeputusan = new JTable(modelKeputusan);
+            tblKeputusan.setRowHeight(25);
+            tblKeputusan.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            calculationTabs.addTab("1. Matriks Keputusan", new JScrollPane(tblKeputusan));
+
+            // Tab 2: Matriks Normalisasi
+            modelNormalisasi = new DefaultTableModel() {
+                @Override
+                public boolean isCellEditable(int row, int col) { return false; }
+            };
+            tblNormalisasi = new JTable(modelNormalisasi);
+            tblNormalisasi.setRowHeight(25);
+            tblNormalisasi.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            calculationTabs.addTab("2. Matriks Normalisasi", new JScrollPane(tblNormalisasi));
+
+            // Tab 3: Matriks Normalisasi Terbobot
+            modelNormalisasiTerbobot = new DefaultTableModel() {
+                @Override
+                public boolean isCellEditable(int row, int col) { return false; }
+            };
+            tblNormalisasiTerbobot = new JTable(modelNormalisasiTerbobot);
+            tblNormalisasiTerbobot.setRowHeight(25);
+            tblNormalisasiTerbobot.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            calculationTabs.addTab("3. Normalisasi Terbobot", new JScrollPane(tblNormalisasiTerbobot));
+
+            // Tab 4: Hasil Akhir & Ranking
             tableModel = new DefaultTableModel(new Object[]{"Rank", "Kode Karyawan", "Nama Karyawan", "Divisi", "Score (Yi)"}, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
@@ -106,8 +146,9 @@ public class ReportPanel extends JPanel {
             tblRanking.getColumnModel().getColumn(0).setMaxWidth(60);
             tblRanking.getColumnModel().getColumn(1).setMaxWidth(120);
             tblRanking.getColumnModel().getColumn(3).setMaxWidth(120);
+            calculationTabs.addTab("4. Hasil Akhir & Ranking", new JScrollPane(tblRanking));
 
-            add(new JScrollPane(tblRanking), BorderLayout.CENTER);
+            add(calculationTabs, BorderLayout.CENTER);
 
             // Conclusion Panel
             conclusionPanel = new JPanel(new BorderLayout());
@@ -131,6 +172,9 @@ public class ReportPanel extends JPanel {
             }
 
             tableModel.setRowCount(0);
+            modelKeputusan.setRowCount(0);
+            modelNormalisasi.setRowCount(0);
+            modelNormalisasiTerbobot.setRowCount(0);
             conclusionPanel.setBackground(new Color(245, 247, 250));
             conclusionPanel.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(220, 224, 230)),
@@ -168,8 +212,65 @@ public class ReportPanel extends JPanel {
                 } else if (step[0] >= 4) {
                     animationTimer.stop();
 
-                    rankingResults = MooraEngine.calculate(divisi);
+                    com.spkbri.model.MooraCalculationResult calcResult = MooraEngine.calculate(divisi);
+                    rankingResults = calcResult.getRankingResults();
+                    java.util.List<com.spkbri.model.Karyawan> karyawanList = calcResult.getKaryawanList();
+                    java.util.List<com.spkbri.model.Kriteria> kriteriaList = calcResult.getKriteriaList();
+                    java.util.Map<Integer, java.util.Map<Integer, Double>> matriksKeputusan = calcResult.getMatriksKeputusan();
+                    java.util.Map<Integer, java.util.Map<Integer, Double>> matriksNormalisasi = calcResult.getMatriksNormalisasi();
+                    java.util.Map<Integer, java.util.Map<Integer, Double>> matriksNormalisasiTerbobot = calcResult.getMatriksNormalisasiTerbobot();
+
                     DecimalFormat df = new DecimalFormat("0.0000");
+
+                    // 1. Populate Matriks Keputusan
+                    java.util.Vector<String> colKeputusan = new java.util.Vector<>();
+                    colKeputusan.add("Nama Karyawan");
+                    for (com.spkbri.model.Kriteria kr : kriteriaList) {
+                        colKeputusan.add(kr.getKodeKriteria() + " (" + (kr.getSifat().equalsIgnoreCase("Benefit") ? "B" : "C") + ")");
+                    }
+                    java.util.Vector<java.util.Vector<Object>> dataKeputusan = new java.util.Vector<>();
+                    for (com.spkbri.model.Karyawan k : karyawanList) {
+                        java.util.Vector<Object> row = new java.util.Vector<>();
+                        row.add(k.getNama());
+                        java.util.Map<Integer, Double> nilaiMap = matriksKeputusan.get(k.getIdKaryawan());
+                        for (com.spkbri.model.Kriteria kr : kriteriaList) {
+                            row.add(nilaiMap != null ? nilaiMap.getOrDefault(kr.getIdKriteria(), 0.0) : 0.0);
+                        }
+                        dataKeputusan.add(row);
+                    }
+                    modelKeputusan.setDataVector(dataKeputusan, colKeputusan);
+
+                    // 2. Populate Matriks Normalisasi
+                    java.util.Vector<String> colNorm = new java.util.Vector<>(colKeputusan);
+                    java.util.Vector<java.util.Vector<Object>> dataNorm = new java.util.Vector<>();
+                    for (com.spkbri.model.Karyawan k : karyawanList) {
+                        java.util.Vector<Object> row = new java.util.Vector<>();
+                        row.add(k.getNama());
+                        java.util.Map<Integer, Double> nilaiMap = matriksNormalisasi.get(k.getIdKaryawan());
+                        for (com.spkbri.model.Kriteria kr : kriteriaList) {
+                            double val = nilaiMap != null ? nilaiMap.getOrDefault(kr.getIdKriteria(), 0.0) : 0.0;
+                            row.add(df.format(val));
+                        }
+                        dataNorm.add(row);
+                    }
+                    modelNormalisasi.setDataVector(dataNorm, colNorm);
+
+                    // 3. Populate Matriks Normalisasi Terbobot
+                    java.util.Vector<String> colWeighted = new java.util.Vector<>(colKeputusan);
+                    java.util.Vector<java.util.Vector<Object>> dataWeighted = new java.util.Vector<>();
+                    for (com.spkbri.model.Karyawan k : karyawanList) {
+                        java.util.Vector<Object> row = new java.util.Vector<>();
+                        row.add(k.getNama());
+                        java.util.Map<Integer, Double> nilaiMap = matriksNormalisasiTerbobot.get(k.getIdKaryawan());
+                        for (com.spkbri.model.Kriteria kr : kriteriaList) {
+                            double val = nilaiMap != null ? nilaiMap.getOrDefault(kr.getIdKriteria(), 0.0) : 0.0;
+                            row.add(df.format(val));
+                        }
+                        dataWeighted.add(row);
+                    }
+                    modelNormalisasiTerbobot.setDataVector(dataWeighted, colWeighted);
+
+                    // 4. Populate Hasil Akhir & Ranking
                     for (RankingResult r : rankingResults) {
                         tableModel.addRow(new Object[]{
                                 r.getRank(),

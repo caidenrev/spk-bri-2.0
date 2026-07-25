@@ -190,39 +190,29 @@ title Activity Diagram — Input Penilaian Karyawan (Admin & Pimpinan)
 start
 :Pilih menu "Input Penilaian";
 :Pilih tab divisi (Bisnis / Operasional);
-:Tampil daftar karyawan per divisi;
-:Pilih karyawan dari tabel;
-:Load kriteria untuk divisi tersebut;
-:Cek penilaian yang sudah ada\nSELECT nilai FROM penilaian\nWHERE id_karyawan=?;
+:Klik "CARI DATA KARYAWAN";
+:Pilih maksimal 5 karyawan pada dialog;
+:Load nilai yang sudah ada dari database;
+:Aktifkan baris matriks keputusan terkait;
+:Input nilai kinerja pada grid (skala 1-5);
 
-if (Data penilaian sudah ada?) then (Ya)
-  :Tampil nilai lama di form\n(field berwarna biru pada Pimpinan);
-else (Tidak)
-  :Tampil nilai default = 0;
-endif
-
-:Isi / ubah nilai kinerja (skala 0-100);
-:Klik "Simpan Nilai";
-
-:Validasi setiap nilai;
-if (Nilai valid (0-100)?) then (Ya)
-  :Mulai transaksi database\n(setAutoCommit = false);
-  :INSERT INTO penilaian ...\nON DUPLICATE KEY UPDATE nilai=VALUES(nilai);
-  if (Batch berhasil?) then (Ya)
+fork
+  :Klik "MULAI HITUNG";
+  :Kalkulasi normalisasi lokal;
+  :Tampilkan hasil di grid matriks normalisasi;
+fork again
+  :Klik "SIMPAN";
+  :Validasi semua nilai (skala 1-5);
+  if (Valid?) then (Ya)
+    :Mulai transaksi database;
+    :INSERT/UPDATE nilai ke tabel penilaian;
     :COMMIT transaksi;
-    :Tampil pesan berhasil;
-    note right
-      Admin: Dashboard di-refresh
-      Pimpinan: Form di-reload
-    end note
+    :Tampil pesan sukses;
+    :Refresh tabel riwayat di bawah;
   else (Tidak)
-    :ROLLBACK transaksi;
-    :Tampil pesan error database;
+    :Tampil pesan "Nilai harus 1-5";
   endif
-else (Tidak)
-  :Tampil pesan "Nilai harus 0-100";
-  :Batalkan penyimpanan;
-endif
+end fork
 stop
 @enduml
 ```
@@ -257,7 +247,7 @@ else (Ya)
   :HITUNG Yi = Σ(Benefit) - Σ(Cost);
   :Urutkan Yi descending;
   :Assign Rank (1, 2, 3, ...);
-  :Tampil tabel ranking;
+  :Tampil Tab Langkah Perhitungan\n(Matriks Keputusan, Normalisasi, Normalisasi Terbobot, Hasil Akhir);
   :Tampil panel rekomendasi;
   :Cek role pengguna;
 
@@ -394,16 +384,16 @@ end
 
 engine -> engine : Sort descending by Yi
 engine -> engine : Assign Rank
-engine --> report : "List<RankingResult>"
+engine --> report : "MooraCalculationResult"
 deactivate engine
 
-report -> report : Render tabel ranking
+report -> report : Render tab matriks keputusan, normalisasi, normalisasi terbobot, dan hasil ranking
 report -> report : Tampil panel rekomendasi
 
 alt Role = Admin (ReportPanel)
-  report --> user : Tabel ranking + tombol ekspor PDF/Excel
+  report --> user : Tampil tab langkah perhitungan + tombol ekspor PDF/Excel
 else Role = Pimpinan (PimpinanRankingPanel)
-  report --> user : Tabel ranking + highlight rank 1 emas
+  report --> user : Tampil tab langkah perhitungan + highlight rank 1 emas
 end
 deactivate report
 @enduml
@@ -426,26 +416,27 @@ participant "DatabaseHelper" as db
 database "MySQL" as mysql
 
 user -> panel : Pilih tab divisi
-user -> panel : Pilih karyawan dari tabel
+user -> panel : Klik "CARI DATA KARYAWAN"
 activate panel
+user -> panel : Pilih maksimal 5 karyawan dan klik "PILIH"
 
 panel -> db : getConnection()
 activate db
 db --> panel : Connection
 deactivate db
 
-panel -> mysql : "SELECT id_kriteria, nilai FROM penilaian\nWHERE id_karyawan=?"
+panel -> mysql : "SELECT id_kriteria, nilai FROM penilaian\nWHERE id_karyawan IN (...)"
 activate mysql
-mysql --> panel : Nilai yang sudah ada
+mysql --> panel : Nilai-nilai yang sudah ada
 deactivate mysql
 
-panel -> panel : "Render form dinamis per kriteria\n(nilai lama ditampilkan berwarna biru)"
-panel --> user : Form nilai per kriteria tampil
+panel -> panel : "Render grid matriks keputusan\ndan isi nilai lama jika ada"
+panel --> user : Grid matriks keputusan diaktifkan
 
-user -> panel : "Input / ubah nilai (0-100)"
-user -> panel : Klik "Simpan Nilai"
+user -> panel : "Input / ubah nilai pada grid (skala 1-5)"
+user -> panel : Klik "SIMPAN"
 
-panel -> panel : "Validasi semua nilai 0 ≤ nilai ≤ 100"
+panel -> panel : "Validasi semua nilai 1 ≤ nilai ≤ 5"
 alt Validasi gagal
   panel --> user : Tampil pesan error validasi
 else Validasi berhasil
@@ -455,7 +446,7 @@ else Validasi berhasil
   deactivate db
 
   panel -> mysql : "setAutoCommit(false)"
-  loop setiap kriteria
+  loop setiap karyawan dan kriteria terpilih
     panel -> mysql : "INSERT INTO penilaian (id_karyawan, id_kriteria, nilai)\nON DUPLICATE KEY UPDATE nilai=VALUES(nilai)"
   end
   panel -> mysql : "executeBatch() + commit()"
@@ -463,8 +454,8 @@ else Validasi berhasil
   mysql --> panel : Success
   deactivate mysql
 
-  panel -> panel : Reload form (refresh warna field)
-  panel --> user : Pesan "Nilai berhasil disimpan"
+  panel -> panel : Reload tabel riwayat di bawah
+  panel --> user : Pesan "Penilaian matriks berhasil disimpan"
 end
 deactivate panel
 @enduml
@@ -538,7 +529,23 @@ class DatabaseHelper {
 }
 
 class MooraEngine {
-  {static} + calculate(divisi : String) : List<RankingResult>
+  {static} + calculate(divisi : String) : MooraCalculationResult
+}
+
+class MooraCalculationResult {
+  - karyawanList : List<Karyawan>
+  - kriteriaList : List<Kriteria>
+  - matriksKeputusan : Map
+  - matriksNormalisasi : Map
+  - matriksNormalisasiTerbobot : Map
+  - rankingResults : List<RankingResult>
+  --
+  + getKaryawanList() : List<Karyawan>
+  + getKriteriaList() : List<Kriteria>
+  + getMatriksKeputusan() : Map
+  + getMatriksNormalisasi() : Map
+  + getMatriksNormalisasiTerbobot() : Map
+  + getRankingResults() : List<RankingResult>
 }
 
 class ExportHelper {
@@ -683,6 +690,11 @@ PimpinanPenilaianPanel --> DatabaseHelper
 RankingResult --> Karyawan
 Penilaian --> Karyawan
 Penilaian --> Kriteria
+
+MooraEngine --> MooraCalculationResult
+MooraCalculationResult --> Karyawan
+MooraCalculationResult --> Kriteria
+MooraCalculationResult --> RankingResult
 
 @enduml
 ```

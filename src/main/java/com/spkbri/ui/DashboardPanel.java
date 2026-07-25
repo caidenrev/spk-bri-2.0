@@ -177,8 +177,8 @@ public class DashboardPanel extends JPanel {
         modelBisnis.setRowCount(0);
         modelOps.setRowCount(0);
 
-        List<RankingResult> rankingBisnis = MooraEngine.calculate("Bisnis");
-        List<RankingResult> rankingOps = MooraEngine.calculate("Operasional");
+        List<RankingResult> rankingBisnis = MooraEngine.calculate("Bisnis").getRankingResults();
+        List<RankingResult> rankingOps = MooraEngine.calculate("Operasional").getRankingResults();
 
         DecimalFormat df = new DecimalFormat("0.0000");
 
