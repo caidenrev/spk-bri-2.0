@@ -119,7 +119,7 @@ public class PenilaianPanel extends JPanel {
 
             leftPanel.add(new JLabel("Kode Perhitungan:"), gbc);
             gbc.gridy++;
-            txtKodePerhitungan = new JTextField("GURU_" + (System.currentTimeMillis() % 100));
+            txtKodePerhitungan = new JTextField("KARYAWAN_" + (System.currentTimeMillis() % 100));
             txtKodePerhitungan.setPreferredSize(new Dimension(200, 30));
             leftPanel.add(txtKodePerhitungan, gbc);
 
@@ -467,7 +467,7 @@ public class PenilaianPanel extends JPanel {
 
         private void resetInputs() {
             clearSelectedKaryawan();
-            txtKodePerhitungan.setText("GURU_" + (System.currentTimeMillis() % 100));
+            txtKodePerhitungan.setText("KARYAWAN_" + (System.currentTimeMillis() % 100));
             int n = kriteriaList.size();
             for (int r = 0; r < n; r++) {
                 for (int c = 0; c < n; c++) {
