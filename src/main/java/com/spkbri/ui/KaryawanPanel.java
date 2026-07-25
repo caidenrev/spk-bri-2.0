@@ -19,6 +19,8 @@ public class KaryawanPanel extends JPanel {
     private JTable tblKaryawan;
     private DefaultTableModel tableModel;
     private JTextField txtSearch;
+    private JComboBox<String> cbFilterDivisi;
+
     private JButton btnSimpan;
     private JButton btnEdit;
     private JButton btnHapus;
@@ -146,8 +148,18 @@ public class KaryawanPanel extends JPanel {
         txtSearch.addActionListener(e -> loadTableData(txtSearch.getText().trim()));
         JButton btnSearch = new JButton("Cari");
         btnSearch.addActionListener(e -> loadTableData(txtSearch.getText().trim()));
+        
+        cbFilterDivisi = new JComboBox<>(new String[]{"Semua Divisi", "Bisnis", "Operasional"});
+        cbFilterDivisi.setPreferredSize(new Dimension(150, 30));
+        cbFilterDivisi.addActionListener(e -> loadTableData(txtSearch.getText().trim()));
+        
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        filterPanel.setBackground(null);
+        filterPanel.add(cbFilterDivisi);
+        filterPanel.add(btnSearch);
+        
         searchBarPanel.add(txtSearch, BorderLayout.CENTER);
-        searchBarPanel.add(btnSearch, BorderLayout.EAST);
+        searchBarPanel.add(filterPanel, BorderLayout.EAST);
 
         tablePanel.add(searchBarPanel, BorderLayout.NORTH);
 
@@ -195,17 +207,29 @@ public class KaryawanPanel extends JPanel {
 
     private void loadTableData(String searchKeyword) {
         tableModel.setRowCount(0);
-        String sql = "SELECT * FROM karyawan";
-        if (!searchKeyword.isEmpty()) {
-            sql += " WHERE nama LIKE ? OR kode_karyawan LIKE ?";
+        String sql = "SELECT * FROM karyawan WHERE 1=1";
+        
+        String filterDivisi = cbFilterDivisi != null ? (String) cbFilterDivisi.getSelectedItem() : "Semua Divisi";
+        if (filterDivisi != null && !filterDivisi.equals("Semua Divisi")) {
+            sql += " AND divisi = ?";
         }
-        sql += " ORDER BY nama ASC";
+
+        if (!searchKeyword.isEmpty()) {
+            sql += " AND (nama LIKE ? OR kode_karyawan LIKE ?)";
+        }
+        sql += " ORDER BY id_karyawan ASC";
 
         try (Connection conn = DatabaseHelper.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             
+            int paramIndex = 1;
+            if (filterDivisi != null && !filterDivisi.equals("Semua Divisi")) {
+                pstmt.setString(paramIndex++, filterDivisi);
+            }
+
             if (!searchKeyword.isEmpty()) {
-                pstmt.setString(1, "%" + searchKeyword + "%");
-                pstmt.setString(2, "%" + searchKeyword + "%");
+                pstmt.setString(paramIndex++, "%" + searchKeyword + "%");
+                pstmt.setString(paramIndex++, "%" + searchKeyword + "%");
             }
 
             try (ResultSet rs = pstmt.executeQuery()) {

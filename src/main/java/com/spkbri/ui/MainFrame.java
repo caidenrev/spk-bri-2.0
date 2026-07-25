@@ -24,7 +24,14 @@ public class MainFrame extends JFrame {
     private KaryawanPanel karyawanPanel;
     private KriteriaPanel kriteriaPanel;
     private PenilaianPanel penilaianPanel;
-    private ReportPanel reportPanel;
+    
+    // Submenu buttons
+    private JButton subBtnDataBisnis;
+    private JButton subBtnDataOps;
+    private JButton subBtnHitungBisnis;
+    private JButton subBtnHitungOps;
+    private JButton subBtnRankingBisnis;
+    private JButton subBtnRankingOps;
 
     private int mouseX, mouseY;
 
@@ -99,7 +106,7 @@ public class MainFrame extends JFrame {
         btnKaryawan = createSidebarButton("Data Karyawan");
         btnKriteria = createSidebarButton("Data Kriteria");
         btnPenilaian = createSidebarButton("Input Penilaian");
-        btnReport = createSidebarButton("Laporan & Ranking");
+        btnReport = createSidebarButton("Laporan \u25BC");
         btnLogout = createSidebarButton("Logout");
 
         // Action Listeners for Sidebar Buttons
@@ -107,7 +114,41 @@ public class MainFrame extends JFrame {
         btnKaryawan.addActionListener(e -> switchCard("Karyawan", btnKaryawan));
         btnKriteria.addActionListener(e -> switchCard("Kriteria", btnKriteria));
         btnPenilaian.addActionListener(e -> switchCard("Penilaian", btnPenilaian));
-        btnReport.addActionListener(e -> switchCard("Report", btnReport));
+        
+        // Report Submenu Panel
+        JPanel submenuPanel = new JPanel();
+        submenuPanel.setLayout(new BoxLayout(submenuPanel, BoxLayout.Y_AXIS));
+        submenuPanel.setBackground(new Color(15, 23, 42));
+        submenuPanel.setVisible(false);
+
+        subBtnDataBisnis = createSubMenuButton("- Laporan Data Karyawan (Bisnis)");
+        subBtnDataOps = createSubMenuButton("- Laporan Data Karyawan (Ops)");
+        subBtnHitungBisnis = createSubMenuButton("- Perhitungan MOORA (Bisnis)");
+        subBtnHitungOps = createSubMenuButton("- Perhitungan MOORA (Ops)");
+        subBtnRankingBisnis = createSubMenuButton("- Hasil Ranking (Bisnis)");
+        subBtnRankingOps = createSubMenuButton("- Hasil Ranking (Ops)");
+
+        submenuPanel.add(subBtnDataBisnis);
+        submenuPanel.add(subBtnDataOps);
+        submenuPanel.add(subBtnHitungBisnis);
+        submenuPanel.add(subBtnHitungOps);
+        submenuPanel.add(subBtnRankingBisnis);
+        submenuPanel.add(subBtnRankingOps);
+
+        subBtnDataBisnis.addActionListener(e -> switchReport("DATA_KARYAWAN", "Bisnis", subBtnDataBisnis));
+        subBtnDataOps.addActionListener(e -> switchReport("DATA_KARYAWAN", "Operasional", subBtnDataOps));
+        subBtnHitungBisnis.addActionListener(e -> switchReport("PERHITUNGAN", "Bisnis", subBtnHitungBisnis));
+        subBtnHitungOps.addActionListener(e -> switchReport("PERHITUNGAN", "Operasional", subBtnHitungOps));
+        subBtnRankingBisnis.addActionListener(e -> switchReport("RANKING", "Bisnis", subBtnRankingBisnis));
+        subBtnRankingOps.addActionListener(e -> switchReport("RANKING", "Operasional", subBtnRankingOps));
+
+        btnReport.addActionListener(e -> {
+            boolean isVisible = submenuPanel.isVisible();
+            submenuPanel.setVisible(!isVisible);
+            btnReport.setText(isVisible ? "Laporan \u25BC" : "Laporan \u25B2");
+            sidebar.revalidate();
+            sidebar.repaint();
+        });
         btnLogout.addActionListener(e -> logout());
 
         sidebar.add(btnDashboard);
@@ -119,6 +160,7 @@ public class MainFrame extends JFrame {
         sidebar.add(btnPenilaian);
         sidebar.add(Box.createRigidArea(new Dimension(0, 8)));
         sidebar.add(btnReport);
+        sidebar.add(submenuPanel);
         sidebar.add(Box.createRigidArea(new Dimension(0, 30)));
         sidebar.add(btnLogout);
 
@@ -133,13 +175,11 @@ public class MainFrame extends JFrame {
         karyawanPanel = new KaryawanPanel(dashboardPanel);
         kriteriaPanel = new KriteriaPanel(dashboardPanel);
         penilaianPanel = new PenilaianPanel(dashboardPanel);
-        reportPanel = new ReportPanel();
 
         mainContentPanel.add(dashboardPanel, "Dashboard");
         mainContentPanel.add(karyawanPanel, "Karyawan");
         mainContentPanel.add(kriteriaPanel, "Kriteria");
         mainContentPanel.add(penilaianPanel, "Penilaian");
-        mainContentPanel.add(reportPanel, "Report");
 
         // Header Panel (Window Control & Draggable)
         JPanel headerPanel = new JPanel(new BorderLayout());
@@ -294,6 +334,38 @@ public class MainFrame extends JFrame {
         return btn;
     }
 
+    private JButton createSubMenuButton(String text) {
+        JButton btn = new JButton(text);
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        btn.setForeground(new Color(148, 163, 184));
+        btn.setBackground(new Color(15, 23, 42));
+        btn.setBorder(new EmptyBorder(8, 30, 8, 10)); // indented
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setAlignmentX(Component.LEFT_ALIGNMENT);
+        btn.setMaximumSize(new Dimension(210, 30));
+        btn.setHorizontalAlignment(SwingConstants.LEFT);
+
+        btn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                if (btn.getForeground() != Color.WHITE) {
+                    btn.setForeground(Color.WHITE);
+                }
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                if (btn.getBackground() == new Color(15, 23, 42)) {
+                    btn.setForeground(new Color(148, 163, 184));
+                }
+            }
+        });
+
+        return btn;
+    }
+
     private void switchCard(String name, JButton source) {
         cardLayout.show(mainContentPanel, name);
         highlightButton(source);
@@ -301,17 +373,35 @@ public class MainFrame extends JFrame {
         // Refresh dynamic panels
         if ("Dashboard".equals(name)) {
             dashboardPanel.refreshData();
-        } else if ("Report".equals(name)) {
-            reportPanel.refreshData();
         } else if ("Penilaian".equals(name)) {
             penilaianPanel.refreshTabs();
         }
     }
+    
+    private void switchReport(String type, String divisi, JButton source) {
+        highlightButton(source);
+        
+        // Remove existing dynamic report panel if any
+        Component[] comps = mainContentPanel.getComponents();
+        for (Component c : comps) {
+            if (c.getName() != null && c.getName().equals("ReportDyn")) {
+                mainContentPanel.remove(c);
+                break;
+            }
+        }
+        
+        ReportPanel rp = new ReportPanel(type, divisi);
+        rp.setName("ReportDyn");
+        mainContentPanel.add(rp, "ReportDyn");
+        cardLayout.show(mainContentPanel, "ReportDyn");
+    }
 
     private void highlightButton(JButton activeBtn) {
         // Reset all buttons
-        JButton[] buttons = {btnDashboard, btnKaryawan, btnKriteria, btnPenilaian, btnReport, btnLogout};
+        JButton[] buttons = {btnDashboard, btnKaryawan, btnKriteria, btnPenilaian, btnReport, btnLogout,
+                             subBtnDataBisnis, subBtnDataOps, subBtnHitungBisnis, subBtnHitungOps, subBtnRankingBisnis, subBtnRankingOps};
         for (JButton b : buttons) {
+            if (b == null) continue;
             b.setForeground(new Color(148, 163, 184));
             b.setOpaque(false);
             b.setBackground(new Color(15, 23, 42));

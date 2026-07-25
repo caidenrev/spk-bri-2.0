@@ -20,6 +20,7 @@ public class PimpinanKaryawanPanel extends JPanel {
     private JTable tblKaryawan;
     private DefaultTableModel tableModel;
     private JTextField txtSearch;
+    private JComboBox<String> cbFilterDivisi;
 
     public PimpinanKaryawanPanel() {
         setLayout(new BorderLayout());
@@ -63,8 +64,18 @@ public class PimpinanKaryawanPanel extends JPanel {
         btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> loadTableData(txtSearch.getText().trim()));
         txtSearch.addActionListener(e -> loadTableData(txtSearch.getText().trim()));
+        
+        cbFilterDivisi = new JComboBox<>(new String[]{"Semua Divisi", "Bisnis", "Operasional"});
+        cbFilterDivisi.setPreferredSize(new Dimension(150, 30));
+        cbFilterDivisi.addActionListener(e -> loadTableData(txtSearch.getText().trim()));
+        
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        filterPanel.setBackground(null);
+        filterPanel.add(cbFilterDivisi);
+        filterPanel.add(btnSearch);
+        
         searchBarPanel.add(txtSearch, BorderLayout.CENTER);
-        searchBarPanel.add(btnSearch, BorderLayout.EAST);
+        searchBarPanel.add(filterPanel, BorderLayout.EAST);
         tablePanel.add(searchBarPanel, BorderLayout.NORTH);
 
         // Table — read-only, tidak bisa di-edit
@@ -102,17 +113,29 @@ public class PimpinanKaryawanPanel extends JPanel {
 
     private void loadTableData(String keyword) {
         tableModel.setRowCount(0);
-        String sql = "SELECT * FROM karyawan";
-        if (!keyword.isEmpty()) {
-            sql += " WHERE nama LIKE ? OR kode_karyawan LIKE ?";
+        String sql = "SELECT * FROM karyawan WHERE 1=1";
+        
+        String filterDivisi = cbFilterDivisi != null ? (String) cbFilterDivisi.getSelectedItem() : "Semua Divisi";
+        if (filterDivisi != null && !filterDivisi.equals("Semua Divisi")) {
+            sql += " AND divisi = ?";
         }
-        sql += " ORDER BY divisi ASC, nama ASC";
+
+        if (!keyword.isEmpty()) {
+            sql += " AND (nama LIKE ? OR kode_karyawan LIKE ?)";
+        }
+        sql += " ORDER BY id_karyawan ASC";
 
         try (Connection conn = DatabaseHelper.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             
+            int paramIndex = 1;
+            if (filterDivisi != null && !filterDivisi.equals("Semua Divisi")) {
+                pstmt.setString(paramIndex++, filterDivisi);
+            }
+
             if (!keyword.isEmpty()) {
-                pstmt.setString(1, "%" + keyword + "%");
-                pstmt.setString(2, "%" + keyword + "%");
+                pstmt.setString(paramIndex++, "%" + keyword + "%");
+                pstmt.setString(paramIndex++, "%" + keyword + "%");
             }
             try (ResultSet rs = pstmt.executeQuery()) {
                 int no = 1;

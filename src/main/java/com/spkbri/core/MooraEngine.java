@@ -152,9 +152,11 @@ public class MooraEngine {
             }
         });
 
-        // 7. Assign ranks
+        // 7. Assign ranks and rebuild karyawanList based on the ranking order
+        karyawanList.clear();
         for (int i = 0; i < results.size(); i++) {
             results.get(i).setRank(i + 1);
+            karyawanList.add(results.get(i).getKaryawan());
         }
 
         return new MooraCalculationResult(karyawanList, kriteriaList, matriksKeputusan, matriksNormalisasi,
