@@ -659,41 +659,41 @@ note right of PimpinanRankingPanel
   Highlight rank 1 warna emas
 end note
 
-App --> LoginFrame
-LoginFrame --> MainFrame : role = admin
-LoginFrame --> PimpinanFrame : role = pimpinan
+App "1..1" --> "1..*" LoginFrame
+LoginFrame "1..1" --> "1..1" MainFrame : role = admin
+LoginFrame "1..1" --> "1..1" PimpinanFrame : role = pimpinan
 
-MainFrame --> DashboardPanel
-MainFrame --> KaryawanPanel
-MainFrame --> KriteriaPanel
-MainFrame --> PenilaianPanel
-MainFrame --> ReportPanel
+MainFrame "1..1" --> "1..1" DashboardPanel
+MainFrame "1..1" --> "1..1" KaryawanPanel
+MainFrame "1..1" --> "1..1" KriteriaPanel
+MainFrame "1..1" --> "1..1" PenilaianPanel
+MainFrame "1..1" --> "1..*" ReportPanel
 
-PimpinanFrame --> PimpinanKaryawanPanel
-PimpinanFrame --> PimpinanPenilaianPanel
-PimpinanFrame --> PimpinanRankingPanel
+PimpinanFrame "1..1" --> "1..1" PimpinanKaryawanPanel
+PimpinanFrame "1..1" --> "1..1" PimpinanPenilaianPanel
+PimpinanFrame "1..1" --> "1..1" PimpinanRankingPanel
 
-DashboardPanel --> MooraEngine
-ReportPanel --> MooraEngine
-PimpinanRankingPanel --> MooraEngine
-ReportPanel --> ExportHelper
+DashboardPanel "1..*" --> "1..1" MooraEngine
+ReportPanel "1..*" --> "1..1" MooraEngine
+PimpinanRankingPanel "1..1" --> "1..1" MooraEngine
+ReportPanel "1..*" --> "1..1" ExportHelper
 
-MooraEngine --> DatabaseHelper
-LoginFrame --> DatabaseHelper
-KaryawanPanel --> DatabaseHelper
-KriteriaPanel --> DatabaseHelper
-PenilaianPanel --> DatabaseHelper
-PimpinanKaryawanPanel --> DatabaseHelper
-PimpinanPenilaianPanel --> DatabaseHelper
+MooraEngine "1..*" --> "1..1" DatabaseHelper
+LoginFrame "1..*" --> "1..1" DatabaseHelper
+KaryawanPanel "1..*" --> "1..1" DatabaseHelper
+KriteriaPanel "1..*" --> "1..1" DatabaseHelper
+PenilaianPanel "1..*" --> "1..1" DatabaseHelper
+PimpinanKaryawanPanel "1..*" --> "1..1" DatabaseHelper
+PimpinanPenilaianPanel "1..*" --> "1..1" DatabaseHelper
 
-RankingResult --> Karyawan
-Penilaian --> Karyawan
-Penilaian --> Kriteria
+RankingResult "1..*" --> "1..1" Karyawan
+Penilaian "1..*" --> "1..1" Karyawan
+Penilaian "1..*" --> "1..1" Kriteria
 
-MooraEngine --> MooraCalculationResult
-MooraCalculationResult --> Karyawan
-MooraCalculationResult --> Kriteria
-MooraCalculationResult --> RankingResult
+MooraEngine "1..1" --> "1..1" MooraCalculationResult
+MooraCalculationResult "1..1" --> "1..*" Karyawan
+MooraCalculationResult "1..1" --> "1..*" Kriteria
+MooraCalculationResult "1..1" --> "1..*" RankingResult
 
 @enduml
 ```
