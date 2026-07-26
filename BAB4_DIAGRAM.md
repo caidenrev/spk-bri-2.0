@@ -44,6 +44,7 @@ rectangle "Sistem Pendukung Keputusan MOORA" {
   usecase "Lihat Data Karyawan (Read-Only)" as UC10
   usecase "Input & Update Nilai Kinerja" as UC11
   usecase "Lihat Hasil Ranking" as UC12
+  usecase "Kelola Akun Pengguna" as UC13
 }
 
 admin --> UC1
@@ -53,6 +54,7 @@ admin --> UC4
 admin --> UC5
 admin --> UC6
 admin --> UC7
+admin --> UC13
 
 pimpinan --> UC1
 pimpinan --> UC2
@@ -247,7 +249,11 @@ else (Ya)
   :Urutkan Yi descending;
   :Assign Rank (1, 2, 3, ...);
   :Tampil Tab Langkah Perhitungan\n(Matriks Keputusan, Normalisasi, Normalisasi Terbobot, Hasil Akhir);
-  :Tampil panel rekomendasi;
+  if (Ada skor valid > 0?) then (Ya)
+    :Tampil panel rekomendasi terbaik;
+  else (Tidak)
+    :Tampil pesan peringatan "Belum Ada Penilaian";
+  endif
   :Cek role pengguna;
 
   if (Role = Admin?) then (Ya)
@@ -826,6 +832,7 @@ package "Presentation Layer — Administrator\n(com.spkbri.ui)" {
   [KriteriaPanel]
   [PenilaianPanel]
   [ReportPanel]
+  [UserPanel]
 }
 
 package "Presentation Layer — Pimpinan\n(com.spkbri.ui)" {
@@ -848,6 +855,7 @@ package "Model Layer\n(com.spkbri.model)" {
   [Kriteria]
   [Penilaian]
   [RankingResult]
+  [User]
 }
 
 package "Utility Layer\n(com.spkbri.util)" {
@@ -860,6 +868,7 @@ database "MySQL\nspk_moora" as db
 [KaryawanPanel] --> [DatabaseHelper]
 [KriteriaPanel] --> [DatabaseHelper]
 [PenilaianPanel] --> [DatabaseHelper]
+[UserPanel] --> [DatabaseHelper]
 [PimpinanKaryawanPanel] --> [DatabaseHelper]
 [PimpinanPenilaianPanel] --> [DatabaseHelper]
 

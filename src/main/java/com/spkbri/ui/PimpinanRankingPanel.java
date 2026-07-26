@@ -25,7 +25,6 @@ public class PimpinanRankingPanel extends JPanel {
         setBackground(new Color(245, 247, 250));
         setBorder(new EmptyBorder(25, 25, 25, 25));
 
-        // Header
         JPanel headerPanel = new JPanel(new GridLayout(2, 1));
         headerPanel.setBackground(null);
         JLabel title = new JLabel("Hasil Ranking Karyawan Terbaik");
@@ -77,7 +76,6 @@ public class PimpinanRankingPanel extends JPanel {
             setBackground(Color.WHITE);
             setBorder(new EmptyBorder(15, 15, 15, 15));
 
-            // Toolbar — hanya tombol refresh, tanpa ekspor
             JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
             toolbar.setBackground(null);
             toolbar.setBorder(new EmptyBorder(0, 0, 10, 0));
@@ -91,11 +89,9 @@ public class PimpinanRankingPanel extends JPanel {
             toolbar.add(btnRefresh);
             add(toolbar, BorderLayout.NORTH);
 
-            // JTabbedPane internal untuk menampilkan langkah perhitungan
             JTabbedPane calculationTabs = new JTabbedPane();
             calculationTabs.setFont(new Font("Segoe UI", Font.BOLD, 11));
 
-            // Tab 1: Matriks Keputusan
             modelKeputusan = new DefaultTableModel() {
                 @Override
                 public boolean isCellEditable(int row, int col) { return false; }
@@ -105,7 +101,6 @@ public class PimpinanRankingPanel extends JPanel {
             tblKeputusan.setFont(new Font("Segoe UI", Font.PLAIN, 12));
             calculationTabs.addTab("1. Matriks Keputusan", new JScrollPane(tblKeputusan));
 
-            // Tab 2: Matriks Normalisasi
             modelNormalisasi = new DefaultTableModel() {
                 @Override
                 public boolean isCellEditable(int row, int col) { return false; }
@@ -115,7 +110,6 @@ public class PimpinanRankingPanel extends JPanel {
             tblNormalisasi.setFont(new Font("Segoe UI", Font.PLAIN, 12));
             calculationTabs.addTab("2. Matriks Normalisasi", new JScrollPane(tblNormalisasi));
 
-            // Tab 3: Matriks Normalisasi Terbobot
             modelNormalisasiTerbobot = new DefaultTableModel() {
                 @Override
                 public boolean isCellEditable(int row, int col) { return false; }
@@ -125,7 +119,6 @@ public class PimpinanRankingPanel extends JPanel {
             tblNormalisasiTerbobot.setFont(new Font("Segoe UI", Font.PLAIN, 12));
             calculationTabs.addTab("3. Normalisasi Terbobot", new JScrollPane(tblNormalisasiTerbobot));
 
-            // Tab 4: Hasil Akhir & Ranking
             tableModel = new DefaultTableModel(
                     new Object[]{"Rank", "Kode Karyawan", "Nama Karyawan", "Divisi", "Score (Yi)"}, 0) {
                 @Override
@@ -144,7 +137,6 @@ public class PimpinanRankingPanel extends JPanel {
             tblRanking.getColumnModel().getColumn(1).setMaxWidth(130);
             tblRanking.getColumnModel().getColumn(3).setMaxWidth(130);
 
-            // Highlight baris pertama dengan warna emas
             tblRanking.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
                 @Override
                 public Component getTableCellRendererComponent(JTable table, Object value,
@@ -153,7 +145,7 @@ public class PimpinanRankingPanel extends JPanel {
                             table, value, isSelected, hasFocus, row, column);
                     if (!isSelected) {
                         if (row == 0) {
-                            c.setBackground(new Color(255, 248, 220)); // Warna emas muda untuk rank 1
+                            c.setBackground(new Color(255, 248, 220));
                             c.setForeground(new Color(133, 77, 14));
                         } else if (row == 1) {
                             c.setBackground(new Color(245, 245, 245));
@@ -170,7 +162,6 @@ public class PimpinanRankingPanel extends JPanel {
             calculationTabs.addTab("4. Hasil Akhir & Ranking", new JScrollPane(tblRanking));
             add(calculationTabs, BorderLayout.CENTER);
 
-            // Panel kesimpulan
             conclusionPanel = new JPanel(new BorderLayout());
             conclusionPanel.setBackground(new Color(245, 247, 250));
             conclusionPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -221,7 +212,6 @@ public class PimpinanRankingPanel extends JPanel {
 
                     DecimalFormat df = new DecimalFormat("0.0000");
 
-                    // 1. Populate Matriks Keputusan
                     java.util.Vector<String> colKeputusan = new java.util.Vector<>();
                     colKeputusan.add("Nama Karyawan");
                     for (com.spkbri.model.Kriteria kr : kriteriaList) {
@@ -239,7 +229,6 @@ public class PimpinanRankingPanel extends JPanel {
                     }
                     modelKeputusan.setDataVector(dataKeputusan, colKeputusan);
 
-                    // 2. Populate Matriks Normalisasi
                     java.util.Vector<String> colNorm = new java.util.Vector<>(colKeputusan);
                     java.util.Vector<java.util.Vector<Object>> dataNorm = new java.util.Vector<>();
                     for (com.spkbri.model.Karyawan k : karyawanList) {
@@ -254,7 +243,6 @@ public class PimpinanRankingPanel extends JPanel {
                     }
                     modelNormalisasi.setDataVector(dataNorm, colNorm);
 
-                    // 3. Populate Matriks Normalisasi Terbobot
                     java.util.Vector<String> colWeighted = new java.util.Vector<>(colKeputusan);
                     java.util.Vector<java.util.Vector<Object>> dataWeighted = new java.util.Vector<>();
                     for (com.spkbri.model.Karyawan k : karyawanList) {
@@ -269,7 +257,6 @@ public class PimpinanRankingPanel extends JPanel {
                     }
                     modelNormalisasiTerbobot.setDataVector(dataWeighted, colWeighted);
 
-                    // 4. Populate Hasil Akhir & Ranking
                     for (RankingResult r : rankingResults) {
                         tableModel.addRow(new Object[]{
                                 r.getRank(),

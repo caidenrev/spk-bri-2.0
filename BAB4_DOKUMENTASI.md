@@ -36,7 +36,8 @@ src/main/java/com/spkbri/
 │   ├── Kriteria.java
 │   ├── Penilaian.java
 │   ├── RankingResult.java
-│   └── MooraCalculationResult.java
+│   ├── MooraCalculationResult.java
+│   └── User.java
 ├── ui/
 │   ├── LoginFrame.java             ← Halaman login (routing berdasarkan role)
 │   ├── MainFrame.java              ← Window utama Administrator
@@ -45,6 +46,7 @@ src/main/java/com/spkbri/
 │   ├── KriteriaPanel.java
 │   ├── PenilaianPanel.java
 │   ├── ReportPanel.java
+│   ├── UserPanel.java              ← Kelola akun (CRUD)
 │   ├── PimpinanFrame.java          ← Window utama Pimpinan
 │   ├── PimpinanKaryawanPanel.java  ← Lihat karyawan (read-only)
 │   ├── PimpinanPenilaianPanel.java ← Input/update nilai kinerja
@@ -161,6 +163,7 @@ if ("pimpinan".equalsIgnoreCase(role)) {
 | Input nilai kinerja | ✅ | ✅ |
 | Update nilai yang sudah ada | ✅ | ✅ |
 | Hapus data penilaian | ✅ | ❌ |
+| Kelola akun pengguna | ✅ | ❌ |
 | Lihat hasil ranking MOORA | ✅ | ✅ |
 | Ekspor laporan PDF/Excel | ✅ | ❌ |
 
@@ -230,7 +233,8 @@ Jendela utama berukuran **1024 × 680** piksel dengan sidebar navigasi tema gela
 | Data Karyawan | `KaryawanPanel` — CRUD lengkap |
 | Data Kriteria | `KriteriaPanel` — CRUD per divisi |
 | Input Penilaian | `PenilaianPanel` |
-| Laporan & Ranking | `ReportPanel` + ekspor PDF/Excel |
+| Laporan ▼ | Terdapat submenu per divisi untuk: Data Karyawan, Perhitungan MOORA, Hasil Ranking |
+| Manajemen Akun | `UserPanel` — CRUD data akun |
 | Logout | Kembali ke `LoginFrame` |
 
 ### 4.6.3 Dashboard (`DashboardPanel`)
@@ -274,7 +278,7 @@ ON DUPLICATE KEY UPDATE nilai = VALUES(nilai)
 
 ### 4.6.7 Laporan dan Ranking (`ReportPanel`)
 
-Animasi 4 langkah proses MOORA, tabel ranking dengan kolom Rank/Kode Karyawan/Nama/Divisi/Score(Yi), panel kesimpulan karyawan terbaik. Ekspor ke PDF (OpenPDF) dan CSV (Java IO dengan UTF-8 BOM).
+Animasi 4 langkah proses MOORA, tabel ranking dengan kolom Rank/Kode Karyawan/Nama/Divisi/Score(Yi), dan panel kesimpulan karyawan terbaik. Sistem dilengkapi dengan **validasi nilai perhitungan**, di mana jika skor belum diinputkan (skor 0), sistem tidak akan merekomendasikan karyawan secara asal, melainkan menampilkan peringatan "Belum Ada Penilaian". Ekspor ke PDF (OpenPDF) dan CSV (Java IO dengan UTF-8 BOM).
 
 ---
 

@@ -10,22 +10,21 @@ public class MainFrame extends JFrame {
 
     private CardLayout cardLayout;
     private JPanel mainContentPanel;
-    
-    // Sidebar Buttons
+
     private JButton btnDashboard;
     private JButton btnKaryawan;
     private JButton btnKriteria;
     private JButton btnPenilaian;
     private JButton btnReport;
+    private JButton btnUsers;
     private JButton btnLogout;
 
-    // Panels
     private DashboardPanel dashboardPanel;
     private KaryawanPanel karyawanPanel;
     private KriteriaPanel kriteriaPanel;
     private PenilaianPanel penilaianPanel;
-    
-    // Submenu buttons
+    private UserPanel userPanel;
+
     private JButton subBtnDataBisnis;
     private JButton subBtnDataOps;
     private JButton subBtnHitungBisnis;
@@ -42,20 +41,17 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Root container with border
         JPanel root = new JPanel(new BorderLayout());
         root.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 1));
         root.setBackground(Color.WHITE);
         setContentPane(root);
 
-        // Left Sidebar Panel (Dark Theme)
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setBackground(new Color(15, 23, 42)); // Premium Slate Blue/Dark
+        sidebar.setBackground(new Color(15, 23, 42));
         sidebar.setPreferredSize(new Dimension(240, 680));
         sidebar.setBorder(new EmptyBorder(20, 15, 20, 15));
 
-        // Sidebar Header (Logo / Title)
         JLabel lblLogo = new JLabel();
         try {
             java.io.File logoFile = new java.io.File("logo.png");
@@ -86,7 +82,6 @@ public class MainFrame extends JFrame {
         sidebar.add(lblLogo);
         sidebar.add(lblSubLogo);
 
-        // Active Admin Info
         JLabel lblUserTitle = new JLabel("ADMINISTRATOR");
         lblUserTitle.setFont(new Font("Segoe UI", Font.BOLD, 10));
         lblUserTitle.setForeground(new Color(100, 116, 139));
@@ -101,21 +96,20 @@ public class MainFrame extends JFrame {
         sidebar.add(lblUserTitle);
         sidebar.add(lblUserName);
 
-        // Sidebar Menu Buttons
         btnDashboard = createSidebarButton("Dashboard (Beranda)");
         btnKaryawan = createSidebarButton("Data Karyawan");
         btnKriteria = createSidebarButton("Data Kriteria");
         btnPenilaian = createSidebarButton("Input Penilaian");
         btnReport = createSidebarButton("Laporan \u25BC");
+        btnUsers = createSidebarButton("Manajemen Akun");
         btnLogout = createSidebarButton("Logout");
 
-        // Action Listeners for Sidebar Buttons
         btnDashboard.addActionListener(e -> switchCard("Dashboard", btnDashboard));
         btnKaryawan.addActionListener(e -> switchCard("Karyawan", btnKaryawan));
         btnKriteria.addActionListener(e -> switchCard("Kriteria", btnKriteria));
         btnPenilaian.addActionListener(e -> switchCard("Penilaian", btnPenilaian));
-        
-        // Report Submenu Panel
+        btnUsers.addActionListener(e -> switchCard("Users", btnUsers));
+
         JPanel submenuPanel = new JPanel();
         submenuPanel.setLayout(new BoxLayout(submenuPanel, BoxLayout.Y_AXIS));
         submenuPanel.setBackground(new Color(15, 23, 42));
@@ -161,27 +155,28 @@ public class MainFrame extends JFrame {
         sidebar.add(Box.createRigidArea(new Dimension(0, 8)));
         sidebar.add(btnReport);
         sidebar.add(submenuPanel);
+        sidebar.add(Box.createRigidArea(new Dimension(0, 8)));
+        sidebar.add(btnUsers);
         sidebar.add(Box.createRigidArea(new Dimension(0, 30)));
         sidebar.add(btnLogout);
 
         root.add(sidebar, BorderLayout.WEST);
 
-        // Right Main Content Panel (CardLayout)
         cardLayout = new CardLayout();
         mainContentPanel = new JPanel(cardLayout);
 
-        // Initialize Panels
         dashboardPanel = new DashboardPanel();
         karyawanPanel = new KaryawanPanel(dashboardPanel);
         kriteriaPanel = new KriteriaPanel(dashboardPanel);
         penilaianPanel = new PenilaianPanel(dashboardPanel);
+        userPanel = new UserPanel();
 
         mainContentPanel.add(dashboardPanel, "Dashboard");
         mainContentPanel.add(karyawanPanel, "Karyawan");
         mainContentPanel.add(kriteriaPanel, "Kriteria");
         mainContentPanel.add(penilaianPanel, "Penilaian");
+        mainContentPanel.add(userPanel, "Users");
 
-        // Header Panel (Window Control & Draggable)
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(new Color(245, 247, 250));
         headerPanel.setPreferredSize(new Dimension(1024, 35));
@@ -200,13 +195,11 @@ public class MainFrame extends JFrame {
             }
         });
 
-        // Window Controls (Min, Max, Close)
         JPanel controls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         controls.setBackground(null);
 
         Dimension btnSize = new Dimension(45, 35);
 
-        // Minimize Button
         JButton btnMin = new JButton("—");
         btnMin.setPreferredSize(btnSize);
         btnMin.setFont(new Font("Segoe UI", Font.PLAIN, 12));
@@ -219,7 +212,7 @@ public class MainFrame extends JFrame {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent e) {
                 btnMin.setOpaque(true);
-                btnMin.setBackground(new Color(229, 229, 229)); // Light Gray Hover
+                btnMin.setBackground(new Color(229, 229, 229));
                 btnMin.setForeground(Color.BLACK);
             }
             @Override
@@ -230,7 +223,6 @@ public class MainFrame extends JFrame {
         });
         btnMin.addActionListener(e -> setExtendedState(JFrame.ICONIFIED));
 
-        // Maximize Button
         JButton btnMax = new JButton("▢");
         btnMax.setPreferredSize(btnSize);
         btnMax.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -243,7 +235,7 @@ public class MainFrame extends JFrame {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent e) {
                 btnMax.setOpaque(true);
-                btnMax.setBackground(new Color(229, 229, 229)); // Light Gray Hover
+                btnMax.setBackground(new Color(229, 229, 229));
                 btnMax.setForeground(Color.BLACK);
             }
             @Override
@@ -258,11 +250,10 @@ public class MainFrame extends JFrame {
                 btnMax.setText("▢");
             } else {
                 setExtendedState(JFrame.MAXIMIZED_BOTH);
-                btnMax.setText("⧉"); // Double overlapping squares
+                btnMax.setText("⧉");
             }
         });
 
-        // Close Button
         JButton btnClose = new JButton("×");
         btnClose.setPreferredSize(btnSize);
         btnClose.setFont(new Font("Segoe UI", Font.PLAIN, 18));
@@ -275,7 +266,7 @@ public class MainFrame extends JFrame {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent e) {
                 btnClose.setOpaque(true);
-                btnClose.setBackground(new Color(232, 17, 35)); // Red Hover
+                btnClose.setBackground(new Color(232, 17, 35));
                 btnClose.setForeground(Color.WHITE);
             }
             @Override
@@ -291,14 +282,12 @@ public class MainFrame extends JFrame {
         controls.add(btnClose);
         headerPanel.add(controls, BorderLayout.EAST);
 
-        // Layout Integration
         JPanel rightContainer = new JPanel(new BorderLayout());
         rightContainer.add(headerPanel, BorderLayout.NORTH);
         rightContainer.add(mainContentPanel, BorderLayout.CENTER);
-        
+
         root.add(rightContainer, BorderLayout.CENTER);
 
-        // Highlight first menu
         highlightButton(btnDashboard);
     }
 
@@ -339,7 +328,7 @@ public class MainFrame extends JFrame {
         btn.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         btn.setForeground(new Color(148, 163, 184));
         btn.setBackground(new Color(15, 23, 42));
-        btn.setBorder(new EmptyBorder(8, 30, 8, 10)); // indented
+        btn.setBorder(new EmptyBorder(8, 30, 8, 10));
         btn.setContentAreaFilled(false);
         btn.setBorderPainted(false);
         btn.setFocusPainted(false);
@@ -370,18 +359,18 @@ public class MainFrame extends JFrame {
         cardLayout.show(mainContentPanel, name);
         highlightButton(source);
 
-        // Refresh dynamic panels
         if ("Dashboard".equals(name)) {
             dashboardPanel.refreshData();
         } else if ("Penilaian".equals(name)) {
             penilaianPanel.refreshTabs();
+        } else if ("Users".equals(name)) {
+            userPanel.loadData();
         }
     }
-    
+
     private void switchReport(String type, String divisi, JButton source) {
         highlightButton(source);
-        
-        // Remove existing dynamic report panel if any
+
         Component[] comps = mainContentPanel.getComponents();
         for (Component c : comps) {
             if (c.getName() != null && c.getName().equals("ReportDyn")) {
@@ -389,7 +378,7 @@ public class MainFrame extends JFrame {
                 break;
             }
         }
-        
+
         ReportPanel rp = new ReportPanel(type, divisi);
         rp.setName("ReportDyn");
         mainContentPanel.add(rp, "ReportDyn");
@@ -397,8 +386,8 @@ public class MainFrame extends JFrame {
     }
 
     private void highlightButton(JButton activeBtn) {
-        // Reset all buttons
-        JButton[] buttons = {btnDashboard, btnKaryawan, btnKriteria, btnPenilaian, btnReport, btnLogout,
+
+        JButton[] buttons = {btnDashboard, btnKaryawan, btnKriteria, btnPenilaian, btnReport, btnUsers, btnLogout,
                              subBtnDataBisnis, subBtnDataOps, subBtnHitungBisnis, subBtnHitungOps, subBtnRankingBisnis, subBtnRankingOps};
         for (JButton b : buttons) {
             if (b == null) continue;
@@ -407,10 +396,9 @@ public class MainFrame extends JFrame {
             b.setBackground(new Color(15, 23, 42));
         }
 
-        // Highlight active button
         activeBtn.setForeground(Color.WHITE);
         activeBtn.setOpaque(true);
-        activeBtn.setBackground(new Color(30, 41, 59)); // Lighter dark
+        activeBtn.setBackground(new Color(30, 41, 59));
     }
 
     private void logout() {

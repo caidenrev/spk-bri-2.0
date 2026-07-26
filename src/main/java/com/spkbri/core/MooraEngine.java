@@ -17,11 +17,11 @@ public class MooraEngine {
     public static MooraCalculationResult calculate(String divisi) {
         List<Karyawan> karyawanList = new ArrayList<>();
         List<Kriteria> kriteriaList = new ArrayList<>();
-        // Maps karyawanId -> (kriteriaId -> nilai)
+
         Map<Integer, Map<Integer, Double>> matriksKeputusan = new HashMap<>();
 
         try (Connection conn = DatabaseHelper.getConnection()) {
-            // 1. Get Karyawan
+
             String sqlKaryawan = "SELECT * FROM karyawan WHERE divisi = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(sqlKaryawan)) {
                 pstmt.setString(1, divisi);
@@ -38,7 +38,6 @@ public class MooraEngine {
                 }
             }
 
-            // 2. Get Kriteria
             String sqlKriteria = "SELECT * FROM kriteria WHERE divisi = ? ORDER BY id_kriteria ASC";
             try (PreparedStatement pstmt = conn.prepareStatement(sqlKriteria)) {
                 pstmt.setString(1, divisi);
@@ -60,7 +59,7 @@ public class MooraEngine {
                 return new MooraCalculationResult(karyawanList, kriteriaList, new HashMap<>(), new HashMap<>(),
                         new HashMap<>(), new ArrayList<>());
             }
-            // 3. Get Penilaian
+
             String sqlPenilaian = "SELECT p.* FROM penilaian p " +
                     "JOIN karyawan k ON p.id_karyawan = k.id_karyawan " +
                     "WHERE k.divisi = ?";
@@ -85,7 +84,6 @@ public class MooraEngine {
                     new HashMap<>(), new ArrayList<>());
         }
 
-        // Fill missing values with 0.0
         for (Karyawan k : karyawanList) {
             Map<Integer, Double> nilaiMap = matriksKeputusan.get(k.getIdKaryawan());
             for (Kriteria kr : kriteriaList) {
@@ -93,8 +91,6 @@ public class MooraEngine {
             }
         }
 
-        // 4. Calculate Denominator for Normalization for each criterion:
-        // sqrt(sum(x_ij^2))
         Map<Integer, Double> pembagiMap = new HashMap<>();
         for (Kriteria kr : kriteriaList) {
             double sumSq = 0.0;
@@ -104,12 +100,10 @@ public class MooraEngine {
             }
             double pembagi = Math.sqrt(sumSq);
             if (pembagi == 0.0)
-                pembagi = 1.0; // Avoid division by zero
+                pembagi = 1.0;
             pembagiMap.put(kr.getIdKriteria(), pembagi);
         }
 
-        // 5. Normalization, Weighted Optimization, and calculating Yi = Sum(Benefit) -
-        // Sum(Cost)
         Map<Integer, Map<Integer, Double>> matriksNormalisasi = new HashMap<>();
         Map<Integer, Map<Integer, Double>> matriksNormalisasiTerbobot = new HashMap<>();
         List<RankingResult> results = new ArrayList<>();
@@ -124,8 +118,8 @@ public class MooraEngine {
             for (Kriteria kr : kriteriaList) {
                 double nilaiMentah = nilaiMap.get(kr.getIdKriteria());
                 double pembagi = pembagiMap.get(kr.getIdKriteria());
-                double terbiasa = nilaiMentah / pembagi; // Normalization
-                double terbobot = terbiasa * kr.getBobot(); // Weighted normalization
+                double terbiasa = nilaiMentah / pembagi;
+                double terbobot = terbiasa * kr.getBobot();
 
                 normRow.put(kr.getIdKriteria(), terbiasa);
                 weightedNormRow.put(kr.getIdKriteria(), terbobot);
@@ -144,7 +138,6 @@ public class MooraEngine {
             results.add(new RankingResult(k, score));
         }
 
-        // 6. Sort results by score descending
         Collections.sort(results, new Comparator<RankingResult>() {
             @Override
             public int compare(RankingResult o1, RankingResult o2) {
@@ -152,7 +145,6 @@ public class MooraEngine {
             }
         });
 
-        // 7. Assign ranks and rebuild karyawanList based on the ranking order
         karyawanList.clear();
         for (int i = 0; i < results.size(); i++) {
             results.get(i).setRank(i + 1);

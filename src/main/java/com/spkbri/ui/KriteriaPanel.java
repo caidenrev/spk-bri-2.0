@@ -18,7 +18,6 @@ public class KriteriaPanel extends JPanel {
         setBackground(new Color(245, 247, 250));
         setBorder(new EmptyBorder(25, 25, 25, 25));
 
-        // Header Panel
         JPanel headerPanel = new JPanel(new GridLayout(2, 1));
         headerPanel.setBackground(null);
         JLabel title = new JLabel("Kelola Data Kriteria");
@@ -31,13 +30,11 @@ public class KriteriaPanel extends JPanel {
         headerPanel.add(subtitle);
         add(headerPanel, BorderLayout.NORTH);
 
-        // Tabbed Pane for separate divisions
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
-        // Divisi Bisnis Tab
         KriteriaDivisiPanel panelBisnis = new KriteriaDivisiPanel("Bisnis", dashboardPanel);
-        // Divisi Operasional Tab
+
         KriteriaDivisiPanel panelOps = new KriteriaDivisiPanel("Operasional", dashboardPanel);
 
         tabbedPane.addTab("Divisi Bisnis", panelBisnis);
@@ -46,7 +43,6 @@ public class KriteriaPanel extends JPanel {
         add(tabbedPane, BorderLayout.CENTER);
     }
 
-    // Inner class for specific division kriteria CRUD
     private static class KriteriaDivisiPanel extends JPanel {
         private String divisi;
         private DashboardPanel dashboardPanel;
@@ -61,13 +57,13 @@ public class KriteriaPanel extends JPanel {
         private JButton btnEdit;
         private JButton btnHapus;
         private JButton btnBatal;
-        
+
         private int selectedId = -1;
 
         public KriteriaDivisiPanel(String divisi, DashboardPanel dashboardPanel) {
             this.divisi = divisi;
             this.dashboardPanel = dashboardPanel;
-            
+
             setLayout(new GridBagLayout());
             setBackground(Color.WHITE);
             setBorder(new EmptyBorder(15, 15, 15, 15));
@@ -76,7 +72,6 @@ public class KriteriaPanel extends JPanel {
             gbc.fill = GridBagConstraints.BOTH;
             gbc.insets = new Insets(10, 10, 10, 10);
 
-            // Left Form
             JPanel formPanel = new JPanel();
             formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
             formPanel.setBackground(Color.WHITE);
@@ -122,7 +117,6 @@ public class KriteriaPanel extends JPanel {
             formPanel.add(txtBobot);
             formPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-            // Buttons
             JPanel btnPanel = new JPanel(new GridLayout(2, 2, 10, 10));
             btnPanel.setBackground(null);
             btnPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
@@ -157,7 +151,6 @@ public class KriteriaPanel extends JPanel {
 
             formPanel.add(btnPanel);
 
-            // Right Table
             JPanel tablePanel = new JPanel(new BorderLayout());
             tablePanel.setBackground(Color.WHITE);
             tablePanel.setBorder(BorderFactory.createCompoundBorder(
@@ -192,7 +185,6 @@ public class KriteriaPanel extends JPanel {
 
             tablePanel.add(new JScrollPane(tblKriteria), BorderLayout.CENTER);
 
-            // Add Form & Table to GridBag
             gbc.gridx = 0;
             gbc.gridy = 0;
             gbc.weightx = 0.35;

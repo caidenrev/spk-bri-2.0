@@ -35,7 +35,6 @@ public class KaryawanPanel extends JPanel {
         setBackground(new Color(245, 247, 250));
         setBorder(new EmptyBorder(25, 25, 25, 25));
 
-        // Header Panel
         JPanel headerPanel = new JPanel(new GridLayout(2, 1));
         headerPanel.setBackground(null);
         JLabel title = new JLabel("Kelola Data Karyawan");
@@ -48,14 +47,12 @@ public class KaryawanPanel extends JPanel {
         headerPanel.add(subtitle);
         add(headerPanel, BorderLayout.NORTH);
 
-        // Split Content Panel
         JPanel contentPanel = new JPanel(new GridBagLayout());
         contentPanel.setBackground(null);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(15, 0, 0, 0);
 
-        // Form Panel (Left)
         JPanel formPanel = new JPanel();
         formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
         formPanel.setBackground(Color.WHITE);
@@ -95,7 +92,6 @@ public class KaryawanPanel extends JPanel {
         formPanel.add(cbDivisi);
         formPanel.add(Box.createRigidArea(new Dimension(0, 25)));
 
-        // Action Buttons
         JPanel btnPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         btnPanel.setBackground(null);
         btnPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
@@ -130,7 +126,6 @@ public class KaryawanPanel extends JPanel {
 
         formPanel.add(btnPanel);
 
-        // Table Panel (Right)
         JPanel tablePanel = new JPanel(new BorderLayout());
         tablePanel.setBackground(Color.WHITE);
         tablePanel.setBorder(BorderFactory.createCompoundBorder(
@@ -138,7 +133,6 @@ public class KaryawanPanel extends JPanel {
                 new EmptyBorder(15, 15, 15, 15)
         ));
 
-        // Search Bar Panel
         JPanel searchBarPanel = new JPanel(new BorderLayout(10, 0));
         searchBarPanel.setBackground(null);
         searchBarPanel.setBorder(new EmptyBorder(0, 0, 10, 0));
@@ -148,16 +142,16 @@ public class KaryawanPanel extends JPanel {
         txtSearch.addActionListener(e -> loadTableData(txtSearch.getText().trim()));
         JButton btnSearch = new JButton("Cari");
         btnSearch.addActionListener(e -> loadTableData(txtSearch.getText().trim()));
-        
+
         cbFilterDivisi = new JComboBox<>(new String[]{"Semua Divisi", "Bisnis", "Operasional"});
         cbFilterDivisi.setPreferredSize(new Dimension(150, 30));
         cbFilterDivisi.addActionListener(e -> loadTableData(txtSearch.getText().trim()));
-        
+
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         filterPanel.setBackground(null);
         filterPanel.add(cbFilterDivisi);
         filterPanel.add(btnSearch);
-        
+
         searchBarPanel.add(txtSearch, BorderLayout.CENTER);
         searchBarPanel.add(filterPanel, BorderLayout.EAST);
 
@@ -188,7 +182,6 @@ public class KaryawanPanel extends JPanel {
 
         tablePanel.add(new JScrollPane(tblKaryawan), BorderLayout.CENTER);
 
-        // Add to Layout
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 0.35;
@@ -208,7 +201,7 @@ public class KaryawanPanel extends JPanel {
     private void loadTableData(String searchKeyword) {
         tableModel.setRowCount(0);
         String sql = "SELECT * FROM karyawan WHERE 1=1";
-        
+
         String filterDivisi = cbFilterDivisi != null ? (String) cbFilterDivisi.getSelectedItem() : "Semua Divisi";
         if (filterDivisi != null && !filterDivisi.equals("Semua Divisi")) {
             sql += " AND divisi = ?";
@@ -221,7 +214,7 @@ public class KaryawanPanel extends JPanel {
 
         try (Connection conn = DatabaseHelper.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-             
+
             int paramIndex = 1;
             if (filterDivisi != null && !filterDivisi.equals("Semua Divisi")) {
                 pstmt.setString(paramIndex++, filterDivisi);

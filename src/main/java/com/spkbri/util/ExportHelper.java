@@ -22,7 +22,6 @@ import java.util.Map;
 
 public class ExportHelper {
 
-    // 1. DATA KARYAWAN
     public static void exportDataKaryawanPDF(List<Karyawan> list, String divisi, File file) throws Exception {
         Document document = new Document();
         PdfWriter.getInstance(document, new FileOutputStream(file));
@@ -53,7 +52,6 @@ public class ExportHelper {
         document.close();
     }
 
-    // 2. PERHITUNGAN MOORA
     public static void exportPerhitunganPDF(MooraCalculationResult result, String divisi, File file) throws Exception {
         Document document = new Document();
         PdfWriter.getInstance(document, new FileOutputStream(file));
@@ -67,13 +65,12 @@ public class ExportHelper {
 
         List<Karyawan> kList = result.getKaryawanList();
         List<Kriteria> kritList = result.getKriteriaList();
-        
+
         int cols = kritList.size() + 1;
         float[] widths = new float[cols];
-        widths[0] = 30; // Karyawan name width
+        widths[0] = 30;
         for (int i = 1; i < cols; i++) widths[i] = 70.0f / kritList.size();
 
-        // 2a. Matriks Keputusan
         document.add(new Paragraph("1. Matriks Keputusan", subtitleFont));
         document.add(new Paragraph("\n"));
         PdfPTable t1 = new PdfPTable(cols);
@@ -94,7 +91,6 @@ public class ExportHelper {
         document.add(t1);
         document.add(new Paragraph("\n"));
 
-        // 2b. Matriks Normalisasi
         document.add(new Paragraph("2. Matriks Normalisasi", subtitleFont));
         document.add(new Paragraph("\n"));
         PdfPTable t2 = new PdfPTable(cols);
@@ -115,7 +111,6 @@ public class ExportHelper {
         document.add(t2);
         document.add(new Paragraph("\n"));
 
-        // 2c. Matriks Normalisasi Terbobot
         document.add(new Paragraph("3. Matriks Normalisasi Terbobot", subtitleFont));
         document.add(new Paragraph("\n"));
         PdfPTable t3 = new PdfPTable(cols);
@@ -134,11 +129,10 @@ public class ExportHelper {
             }
         }
         document.add(t3);
-        
+
         document.close();
     }
 
-    // 3. RANKING
     public static void exportRankingPDF(List<RankingResult> results, String divisi, File file) throws Exception {
         Document document = new Document();
         PdfWriter.getInstance(document, new FileOutputStream(file));
@@ -169,10 +163,10 @@ public class ExportHelper {
         document.add(table);
         document.close();
     }
-    
+
     public static void exportToCSV(List<RankingResult> results, String divisi, File file) throws IOException {
         try (FileWriter writer = new FileWriter(file)) {
-            // Write BOM for Excel UTF-8 compatibility
+
             writer.write('\ufeff');
             writer.write("Rank,Kode Karyawan,Nama,Divisi,Score (Yi)\n");
             DecimalFormat df = new DecimalFormat("0.0000");

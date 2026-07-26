@@ -24,15 +24,14 @@ public class ReportPanel extends JPanel {
 
     private JTable mainTable;
     private DefaultTableModel mainTableModel;
-    
-    // For PERHITUNGAN
+
     private DefaultTableModel modelKeputusan;
     private DefaultTableModel modelNormalisasi;
     private DefaultTableModel modelNormalisasiTerbobot;
 
     private JPanel conclusionPanel;
     private JLabel lblConclusion;
-    
+
     private MooraCalculationResult calcResult;
 
     public ReportPanel(String reportType, String divisi) {
@@ -42,7 +41,6 @@ public class ReportPanel extends JPanel {
         setBackground(new Color(245, 247, 250));
         setBorder(new EmptyBorder(25, 25, 25, 25));
 
-        // Header Panel
         JPanel headerPanel = new JPanel(new GridLayout(2, 1));
         headerPanel.setBackground(null);
         JLabel title = new JLabel(getTitleByReportType());
@@ -53,12 +51,11 @@ public class ReportPanel extends JPanel {
         subtitle.setForeground(Color.GRAY);
         headerPanel.add(title);
         headerPanel.add(subtitle);
-        
+
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(null);
         topPanel.add(headerPanel, BorderLayout.CENTER);
-        
-        // Toolbar
+
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         toolbar.setBackground(null);
         toolbar.setBorder(new EmptyBorder(10, 0, 10, 0));
@@ -75,10 +72,9 @@ public class ReportPanel extends JPanel {
         toolbar.add(btnRefresh);
         toolbar.add(btnPDF);
         topPanel.add(toolbar, BorderLayout.EAST);
-        
+
         add(topPanel, BorderLayout.NORTH);
 
-        // Content Area
         JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.setBackground(Color.WHITE);
         contentPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
@@ -90,7 +86,7 @@ public class ReportPanel extends JPanel {
             mainTable = new JTable(mainTableModel);
             setupTable(mainTable);
             contentPanel.add(new JScrollPane(mainTable), BorderLayout.CENTER);
-            
+
         } else if (reportType.equals("PERHITUNGAN")) {
             JTabbedPane calcTabs = new JTabbedPane();
             calcTabs.setFont(new Font("Segoe UI", Font.BOLD, 11));
@@ -111,7 +107,7 @@ public class ReportPanel extends JPanel {
             calcTabs.addTab("3. Normalisasi Terbobot", new JScrollPane(tblNormTerbobot));
 
             contentPanel.add(calcTabs, BorderLayout.CENTER);
-            
+
         } else if (reportType.equals("RANKING")) {
             mainTableModel = new DefaultTableModel(new Object[]{"Rank", "Kode Karyawan", "Nama Karyawan", "Divisi", "Score (Yi)"}, 0) {
                 @Override public boolean isCellEditable(int r, int c) { return false; }
@@ -120,15 +116,14 @@ public class ReportPanel extends JPanel {
             setupTable(mainTable);
             mainTable.getColumnModel().getColumn(0).setMaxWidth(60);
             contentPanel.add(new JScrollPane(mainTable), BorderLayout.CENTER);
-            
-            // Conclusion Panel
+
             conclusionPanel = new JPanel(new BorderLayout());
             conclusionPanel.setBackground(new Color(245, 247, 250));
             conclusionPanel.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(220, 224, 230)),
                     new EmptyBorder(15, 20, 15, 20)
             ));
-            
+
             lblConclusion = new JLabel("<html>Belum ada data.</html>");
             lblConclusion.setFont(new Font("Segoe UI", Font.PLAIN, 13));
             conclusionPanel.add(lblConclusion, BorderLayout.CENTER);
@@ -138,18 +133,18 @@ public class ReportPanel extends JPanel {
         add(contentPanel, BorderLayout.CENTER);
         loadData();
     }
-    
+
     private void setupTable(JTable table) {
         table.setRowHeight(28);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 12));
     }
-    
+
     private String getTitleByReportType() {
         if (reportType.equals("DATA_KARYAWAN")) return "Laporan Data Karyawan - Divisi " + divisi;
         if (reportType.equals("PERHITUNGAN")) return "Laporan Perhitungan MOORA - Divisi " + divisi;
         return "Laporan Hasil Ranking - Divisi " + divisi;
     }
-    
+
     private String getSubtitleByReportType() {
         if (reportType.equals("DATA_KARYAWAN")) return "Menampilkan daftar seluruh karyawan yang terdaftar di Divisi " + divisi;
         if (reportType.equals("PERHITUNGAN")) return "Menampilkan proses perhitungan matriks keputusan hingga normalisasi terbobot";
@@ -180,7 +175,6 @@ public class ReportPanel extends JPanel {
                 colNames.add(kr.getKodeKriteria() + " (" + (kr.getSifat().equalsIgnoreCase("Benefit") ? "B" : "C") + ")");
             }
 
-            // Keputusan
             Vector<Vector<Object>> dataKep = new Vector<>();
             for (Karyawan k : kList) {
                 Vector<Object> row = new Vector<>();
@@ -193,7 +187,6 @@ public class ReportPanel extends JPanel {
             }
             modelKeputusan.setDataVector(dataKep, colNames);
 
-            // Normalisasi
             Vector<Vector<Object>> dataNorm = new Vector<>();
             for (Karyawan k : kList) {
                 Vector<Object> row = new Vector<>();
@@ -207,7 +200,6 @@ public class ReportPanel extends JPanel {
             }
             modelNormalisasi.setDataVector(dataNorm, colNames);
 
-            // Normalisasi Terbobot
             Vector<Vector<Object>> dataWeighted = new Vector<>();
             for (Karyawan k : kList) {
                 Vector<Object> row = new Vector<>();
@@ -220,7 +212,7 @@ public class ReportPanel extends JPanel {
                 dataWeighted.add(row);
             }
             modelNormalisasiTerbobot.setDataVector(dataWeighted, colNames);
-            
+
         } else if (reportType.equals("RANKING")) {
             mainTableModel.setRowCount(0);
             List<RankingResult> rankingResults = calcResult.getRankingResults();
@@ -235,22 +227,39 @@ public class ReportPanel extends JPanel {
             }
 
             if (!rankingResults.isEmpty()) {
-                RankingResult best = rankingResults.get(0);
-                lblConclusion.setText("<html>" +
-                        "<div style='font-family: \"Segoe UI\", sans-serif;'>" +
-                        "  <span style='font-size: 11px; font-weight: bold; color: #2e7d32; text-transform: uppercase;'>Rekomendasi Karyawan Terbaik</span><br>" +
-                        "  <span style='font-size: 18px; font-weight: bold; color: #1e4620;'>" + best.getKaryawan().getNama() + "</span>" +
-                        "  <span style='font-size: 12px; color: #555;'> (Kode: " + best.getKaryawan().getKodeKaryawan() + ")</span><br>" +
-                        "  <span style='font-size: 13px; color: #333;'>Berdasarkan hasil kalkulasi metode MOORA, karyawan ini menduduki peringkat pertama dengan skor optimasi (Yi) tertinggi sebesar <b>" + df.format(best.getScore()) + "</b>.</span>" +
-                        "</div></html>");
-                conclusionPanel.setBackground(new Color(230, 245, 235)); // soft green
+                boolean hasValidScore = false;
+                for (RankingResult r : rankingResults) {
+                    if (r.getScore() != 0.0) {
+                        hasValidScore = true;
+                        break;
+                    }
+                }
+
+                if (hasValidScore) {
+                    RankingResult best = rankingResults.get(0);
+                    lblConclusion.setText("<html>" +
+                            "<div style='font-family: \"Segoe UI\", sans-serif;'>" +
+                            "  <span style='font-size: 11px; font-weight: bold; color: #2e7d32; text-transform: uppercase;'>Rekomendasi Karyawan Terbaik</span><br>" +
+                            "  <span style='font-size: 18px; font-weight: bold; color: #1e4620;'>" + best.getKaryawan().getNama() + "</span>" +
+                            "  <span style='font-size: 12px; color: #555;'> (Kode: " + best.getKaryawan().getKodeKaryawan() + ")</span><br>" +
+                            "  <span style='font-size: 13px; color: #333;'>Berdasarkan hasil kalkulasi metode MOORA, karyawan ini menduduki peringkat pertama dengan skor optimasi (Yi) tertinggi sebesar <b>" + df.format(best.getScore()) + "</b>.</span>" +
+                            "</div></html>");
+                    conclusionPanel.setBackground(new Color(230, 245, 235));
+                } else {
+                    lblConclusion.setText("<html>" +
+                            "<div style='font-family: \"Segoe UI\", sans-serif;'>" +
+                            "  <span style='font-size: 11px; font-weight: bold; color: #856404; text-transform: uppercase;'>Belum Ada Penilaian</span><br>" +
+                            "  <span style='font-size: 13px; color: #333;'>Nilai kalkulasi masih 0.0000. Silakan isi data penilaian kinerja pada menu Penilaian terlebih dahulu.</span><br>" +
+                            "</div></html>");
+                    conclusionPanel.setBackground(new Color(255, 243, 205));
+                }
             } else {
                 lblConclusion.setText("<html>" +
                         "<div style='font-family: \"Segoe UI\", sans-serif;'>" +
                         "  <span style='font-size: 11px; font-weight: bold; color: #721c24; text-transform: uppercase;'>Data Kosong</span><br>" +
-                        "  <span style='font-size: 14px; font-weight: bold; color: #666;'>Belum ada data untuk kalkulasi peringkat</span><br>" +
+                        "  <span style='font-size: 13px; color: #333;'>Belum ada data karyawan untuk kalkulasi peringkat.</span><br>" +
                         "</div></html>");
-                conclusionPanel.setBackground(new Color(245, 247, 250)); // soft gray
+                conclusionPanel.setBackground(new Color(245, 247, 250));
             }
         }
     }
@@ -263,13 +272,13 @@ public class ReportPanel extends JPanel {
 
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Simpan Laporan PDF");
-        
+
         String filename = "Laporan_";
         if (reportType.equals("DATA_KARYAWAN")) filename += "DataKaryawan_";
         if (reportType.equals("PERHITUNGAN")) filename += "Perhitungan_";
         if (reportType.equals("RANKING")) filename += "Ranking_";
         filename += divisi + ".pdf";
-        
+
         fileChooser.setSelectedFile(new File(filename));
 
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {

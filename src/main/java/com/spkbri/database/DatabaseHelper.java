@@ -22,4 +22,3 @@ public class DatabaseHelper {
         return DriverManager.getConnection(url, USER, PASSWORD);
     }
 }
-// ========================== function query db apus aja =======================

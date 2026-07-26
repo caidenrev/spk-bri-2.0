@@ -63,13 +63,21 @@ Menu ini didesain persis seperti matriks pembanding untuk memudahkan input massa
 6.  Klik **SIMPAN** untuk merekam seluruh nilai keputusan ke database.
 7.  Tabel **Riwayat Perankingan** di bagian bawah kanan akan terisi secara otomatis memperlihatkan rekapitulasi nilai dan skor akhir Yi.
 
-#### E. Menu Laporan & Ranking
-*   Menyajikan hasil evaluasi komprehensif MOORA per divisi dalam 4 sub-tab:
-    1.  **1. Matriks Keputusan**: Nilai rating skala 1-100 yang tersimpan.
-    2.  **2. Matriks Normalisasi**: Hasil normalisasi rasio pembagi kuadrat.
-    3.  **3. Normalisasi Terbobot**: Hasil kali matriks normalisasi dengan bobot kriteria.
-    4.  **4. Hasil Akhir & Ranking**: Peringkat karyawan dari skor optimasi tertinggi ($Yi$).
-*   **Ekspor Dokumen**: Klik tombol **Cetak PDF** atau **Cetak Excel** di kanan atas untuk mengunduh laporan fisik hasil perankingan.
+#### E. Menu Laporan
+Menu Laporan sekarang dipisah menjadi submenu berdasarkan divisi (Bisnis dan Operasional) dan jenis laporan:
+*   **Laporan Data Karyawan**: Menampilkan daftar karyawan dan kriteria yang relevan untuk divisi tersebut.
+*   **Perhitungan MOORA**: Menyajikan hasil evaluasi komprehensif MOORA per divisi dalam 3 sub-tab:
+    1.  **Matriks Keputusan**: Nilai rating skala 1-100 yang tersimpan.
+    2.  **Matriks Normalisasi**: Hasil normalisasi rasio pembagi kuadrat.
+    3.  **Normalisasi Terbobot**: Hasil kali matriks normalisasi dengan bobot kriteria.
+*   **Hasil Ranking**: Peringkat karyawan dari skor optimasi tertinggi ($Yi$). *Catatan: Jika penilaian belum diinputkan (skor 0), sistem tidak akan menampilkan rekomendasi terbaik dan akan meminta pengguna untuk mengisi penilaian terlebih dahulu.*
+*   **Ekspor Dokumen**: Tersedia tombol **Cetak PDF** dan **Cetak Excel** pada masing-masing submenu laporan untuk mengunduh laporan fisik.
+
+#### F. Menu Manajemen Akun
+*   Menampilkan daftar pengguna aplikasi (Admin & Pimpinan).
+*   **Menambah Akun**: Isi Username, Password, Nama Lengkap, dan pilih Role (admin/pimpinan), lalu klik **Simpan**.
+*   **Mengubah Akun**: Pilih akun pada tabel, ubah detail di sebelah kiri (biarkan password kosong jika tidak ingin mengubah), lalu klik **Update**.
+*   **Menghapus Akun**: Pilih akun pada tabel, lalu klik **Hapus**.
 
 ---
 

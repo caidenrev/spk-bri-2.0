@@ -26,26 +26,23 @@ public class LoginFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(750, 480);
         setLocationRelativeTo(null);
-        
-        // Root Panel
+
         JPanel root = new JPanel(new BorderLayout());
         root.setBorder(BorderFactory.createLineBorder(new Color(218, 224, 233), 1));
         root.setBackground(Color.WHITE);
         setContentPane(root);
 
-        // --- LEFT PANE (Corporate Branding / Welcome) ---
         JPanel leftPane = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g;
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                // Beautiful blue gradient matching BRI branding
+
                 GradientPaint gp = new GradientPaint(0, 0, new Color(0, 82, 162), 0, getHeight(), new Color(10, 50, 110));
                 g2d.setPaint(gp);
                 g2d.fillRect(0, 0, getWidth(), getHeight());
 
-                // Optional geometric overlay for premium look
                 g2d.setColor(new Color(255, 255, 255, 15));
                 g2d.fillOval(-100, -100, 350, 350);
                 g2d.fillOval(getWidth() - 150, getHeight() - 150, 300, 300);
@@ -85,7 +82,7 @@ public class LoginFrame extends JFrame {
         gbcLeft.insets = new Insets(5, 0, 25, 0);
         JLabel lblLeftSub = new JLabel("KCP ARUNDINA");
         lblLeftSub.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblLeftSub.setForeground(new Color(242, 142, 43)); // Accent Orange
+        lblLeftSub.setForeground(new Color(242, 142, 43));
         leftPane.add(lblLeftSub, gbcLeft);
 
         gbcLeft.gridy++;
@@ -104,16 +101,13 @@ public class LoginFrame extends JFrame {
 
         root.add(leftPane, BorderLayout.WEST);
 
-        // --- RIGHT PANE (Form Fields) ---
         JPanel rightPane = new JPanel(new BorderLayout());
         rightPane.setBackground(Color.WHITE);
 
-        // Header Panel (Window control & dragging area)
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(Color.WHITE);
         headerPanel.setPreferredSize(new Dimension(430, 35));
-        
-        // Window drag listeners
+
         MouseAdapter dragAdapter = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -128,13 +122,11 @@ public class LoginFrame extends JFrame {
         headerPanel.addMouseListener(dragAdapter);
         headerPanel.addMouseMotionListener(dragAdapter);
 
-        // Window Controls (Min, Close)
         JPanel controls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         controls.setBackground(null);
 
         Dimension btnSize = new Dimension(45, 35);
 
-        // Minimize Button
         JButton btnMin = new JButton("—");
         btnMin.setPreferredSize(btnSize);
         btnMin.setFont(new Font("Segoe UI", Font.PLAIN, 12));
@@ -147,7 +139,7 @@ public class LoginFrame extends JFrame {
             @Override
             public void mouseEntered(MouseEvent e) {
                 btnMin.setOpaque(true);
-                btnMin.setBackground(new Color(229, 229, 229)); // Light Gray Hover
+                btnMin.setBackground(new Color(229, 229, 229));
                 btnMin.setForeground(Color.BLACK);
             }
             @Override
@@ -158,7 +150,6 @@ public class LoginFrame extends JFrame {
         });
         btnMin.addActionListener(e -> setExtendedState(JFrame.ICONIFIED));
 
-        // Close Button
         JButton btnClose = new JButton("×");
         btnClose.setPreferredSize(btnSize);
         btnClose.setFont(new Font("Segoe UI", Font.PLAIN, 18));
@@ -171,7 +162,7 @@ public class LoginFrame extends JFrame {
             @Override
             public void mouseEntered(MouseEvent e) {
                 btnClose.setOpaque(true);
-                btnClose.setBackground(new Color(232, 17, 35)); // Red Hover
+                btnClose.setBackground(new Color(232, 17, 35));
                 btnClose.setForeground(Color.WHITE);
             }
             @Override
@@ -187,7 +178,6 @@ public class LoginFrame extends JFrame {
         headerPanel.add(controls, BorderLayout.EAST);
         rightPane.add(headerPanel, BorderLayout.NORTH);
 
-        // Form Center Container
         JPanel formContainer = new JPanel(new GridBagLayout());
         formContainer.setBackground(Color.WHITE);
         formContainer.setBorder(new EmptyBorder(10, 45, 45, 45));
@@ -211,7 +201,6 @@ public class LoginFrame extends JFrame {
         lblFormSub.setForeground(Color.GRAY);
         formContainer.add(lblFormSub, gbc);
 
-        // Username Field
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 5, 0);
         JLabel lblUser = new JLabel("Username");
@@ -224,12 +213,11 @@ public class LoginFrame extends JFrame {
         txtUsername = new JTextField();
         txtUsername.setPreferredSize(new Dimension(320, 38));
         txtUsername.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Masukkan username...");
-        txtUsername.putClientProperty(FlatClientProperties.TEXT_FIELD_LEADING_ICON, new ImageIcon()); // Spacer/Icon placeholder if needed
+        txtUsername.putClientProperty(FlatClientProperties.TEXT_FIELD_LEADING_ICON, new ImageIcon());
         txtUsername.putClientProperty("JComponent.roundRect", true);
         txtUsername.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         formContainer.add(txtUsername, gbc);
 
-        // Password Field
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 5, 0);
         JLabel lblPass = new JLabel("Password");
@@ -247,7 +235,6 @@ public class LoginFrame extends JFrame {
         txtPassword.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         formContainer.add(txtPassword, gbc);
 
-        // Error message label
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 15, 0);
         lblError = new JLabel(" ");
@@ -255,7 +242,6 @@ public class LoginFrame extends JFrame {
         lblError.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         formContainer.add(lblError, gbc);
 
-        // Login Button
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 0, 0);
         JButton btnLogin = new JButton("Masuk");

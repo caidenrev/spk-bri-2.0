@@ -29,7 +29,6 @@ public class DashboardPanel extends JPanel {
         setBackground(new Color(245, 247, 250));
         setBorder(new EmptyBorder(25, 25, 25, 25));
 
-        // Title Panel
         JPanel titlePanel = new JPanel(new GridLayout(2, 1));
         titlePanel.setBackground(null);
         JLabel title = new JLabel("Beranda Utama");
@@ -42,7 +41,6 @@ public class DashboardPanel extends JPanel {
         titlePanel.add(subtitle);
         add(titlePanel, BorderLayout.NORTH);
 
-        // Stats Cards Panel
         JPanel cardsPanel = new JPanel(new GridLayout(1, 3, 20, 0));
         cardsPanel.setBackground(null);
         cardsPanel.setBorder(new EmptyBorder(20, 0, 20, 0));
@@ -60,11 +58,9 @@ public class DashboardPanel extends JPanel {
         cardsPanel.add(card2);
         cardsPanel.add(card3);
 
-        // Preview Tables Panel (Top 3 Karyawan Terbaik)
         JPanel tablesPanel = new JPanel(new GridLayout(1, 2, 20, 0));
         tablesPanel.setBackground(null);
 
-        // Top 3 Bisnis Panel
         JPanel pnlTopBisnis = new JPanel(new BorderLayout());
         pnlTopBisnis.setBackground(Color.WHITE);
         pnlTopBisnis.setBorder(BorderFactory.createCompoundBorder(
@@ -83,7 +79,6 @@ public class DashboardPanel extends JPanel {
         tblTopBisnis.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         pnlTopBisnis.add(new JScrollPane(tblTopBisnis), BorderLayout.CENTER);
 
-        // Top 3 Ops Panel
         JPanel pnlTopOps = new JPanel(new BorderLayout());
         pnlTopOps.setBackground(Color.WHITE);
         pnlTopOps.setBorder(BorderFactory.createCompoundBorder(
@@ -105,7 +100,6 @@ public class DashboardPanel extends JPanel {
         tablesPanel.add(pnlTopBisnis);
         tablesPanel.add(pnlTopOps);
 
-        // Combine Center Panel
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.setBackground(null);
         centerPanel.add(cardsPanel, BorderLayout.NORTH);
@@ -147,7 +141,7 @@ public class DashboardPanel extends JPanel {
     }
 
     public void refreshData() {
-        // Load Stats
+
         int karyawanCount = 0;
         int kriteriaBisnisCount = 0;
         int kriteriaOpsCount = 0;
@@ -173,7 +167,6 @@ public class DashboardPanel extends JPanel {
         lblTotalKriteriaBisnis.setText(String.valueOf(kriteriaBisnisCount));
         lblTotalKriteriaOps.setText(String.valueOf(kriteriaOpsCount));
 
-        // Load Top 3
         modelBisnis.setRowCount(0);
         modelOps.setRowCount(0);
 

@@ -27,7 +27,6 @@ public class PimpinanKaryawanPanel extends JPanel {
         setBackground(new Color(245, 247, 250));
         setBorder(new EmptyBorder(25, 25, 25, 25));
 
-        // Header
         JPanel headerPanel = new JPanel(new GridLayout(2, 1));
         headerPanel.setBackground(null);
         JLabel title = new JLabel("Data Karyawan");
@@ -40,7 +39,6 @@ public class PimpinanKaryawanPanel extends JPanel {
         headerPanel.add(subtitle);
         add(headerPanel, BorderLayout.NORTH);
 
-        // Table Panel
         JPanel tablePanel = new JPanel(new BorderLayout());
         tablePanel.setBackground(Color.WHITE);
         tablePanel.setBorder(BorderFactory.createCompoundBorder(
@@ -52,7 +50,6 @@ public class PimpinanKaryawanPanel extends JPanel {
                 new EmptyBorder(15, 15, 15, 15)
         ));
 
-        // Search Bar
         JPanel searchBarPanel = new JPanel(new BorderLayout(10, 0));
         searchBarPanel.setBackground(null);
         searchBarPanel.setBorder(new EmptyBorder(0, 0, 12, 0));
@@ -64,21 +61,20 @@ public class PimpinanKaryawanPanel extends JPanel {
         btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> loadTableData(txtSearch.getText().trim()));
         txtSearch.addActionListener(e -> loadTableData(txtSearch.getText().trim()));
-        
+
         cbFilterDivisi = new JComboBox<>(new String[]{"Semua Divisi", "Bisnis", "Operasional"});
         cbFilterDivisi.setPreferredSize(new Dimension(150, 30));
         cbFilterDivisi.addActionListener(e -> loadTableData(txtSearch.getText().trim()));
-        
+
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         filterPanel.setBackground(null);
         filterPanel.add(cbFilterDivisi);
         filterPanel.add(btnSearch);
-        
+
         searchBarPanel.add(txtSearch, BorderLayout.CENTER);
         searchBarPanel.add(filterPanel, BorderLayout.EAST);
         tablePanel.add(searchBarPanel, BorderLayout.NORTH);
 
-        // Table — read-only, tidak bisa di-edit
         tableModel = new DefaultTableModel(new Object[]{"No", "Kode Karyawan", "Nama Karyawan", "Divisi"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -95,7 +91,6 @@ public class PimpinanKaryawanPanel extends JPanel {
 
         tablePanel.add(new JScrollPane(tblKaryawan), BorderLayout.CENTER);
 
-        // Info label — pemberitahuan read-only
         JLabel lblInfo = new JLabel("  ℹ  Anda hanya dapat melihat data karyawan. Perubahan data dilakukan oleh Administrator.");
         lblInfo.setFont(new Font("Segoe UI", Font.ITALIC, 11));
         lblInfo.setForeground(new Color(100, 116, 139));
@@ -114,7 +109,7 @@ public class PimpinanKaryawanPanel extends JPanel {
     private void loadTableData(String keyword) {
         tableModel.setRowCount(0);
         String sql = "SELECT * FROM karyawan WHERE 1=1";
-        
+
         String filterDivisi = cbFilterDivisi != null ? (String) cbFilterDivisi.getSelectedItem() : "Semua Divisi";
         if (filterDivisi != null && !filterDivisi.equals("Semua Divisi")) {
             sql += " AND divisi = ?";
@@ -127,7 +122,7 @@ public class PimpinanKaryawanPanel extends JPanel {
 
         try (Connection conn = DatabaseHelper.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-             
+
             int paramIndex = 1;
             if (filterDivisi != null && !filterDivisi.equals("Semua Divisi")) {
                 pstmt.setString(paramIndex++, filterDivisi);

@@ -31,7 +31,8 @@ src/main/java/com/spkbri/
 │   ├── Karyawan.java               # Model data Karyawan
 │   ├── Kriteria.java               # Model data Kriteria
 │   ├── Penilaian.java              # Model data Penilaian
-│   └── RankingResult.java          # Model hasil perankingan
+│   ├── RankingResult.java          # Model hasil perankingan
+│   └── User.java                   # Model data Akun Pengguna
 ├── ui/
 │   ├── LoginFrame.java             # Layar autentikasi pengguna & routing role
 │   ├── MainFrame.java              # Window utama Administrator (Dashboard & Navigasi)
@@ -40,6 +41,7 @@ src/main/java/com/spkbri/
 │   ├── KriteriaPanel.java          # Manajemen data kriteria (CRUD)
 │   ├── PenilaianPanel.java         # Input nilai karyawan
 │   ├── ReportPanel.java            # Tampilan ranking & ekspor laporan
+│   ├── UserPanel.java              # Manajemen Akun Pengguna (CRUD)
 │   ├── PimpinanFrame.java          # Window utama Pimpinan
 │   ├── PimpinanKaryawanPanel.java  # Daftar karyawan (Read-Only)
 │   ├── PimpinanPenilaianPanel.java # Input & update nilai kinerja
@@ -80,10 +82,12 @@ Aplikasi menggunakan database MySQL (`spk_moora`) dengan tabel sebagai berikut:
 
 ## 🚀 Fitur Utama
 - **Sistem Multi-Role:** Akses terpisah untuk **Administrator** (kelola data karyawan/kriteria, input nilai, ekspor laporan) dan **Pimpinan** (lihat karyawan, input/update nilai, lihat hasil perankingan).
+- **Manajemen Akun:** Tambah, edit, hapus akun login untuk Administrator dan Pimpinan melalui UI Admin.
 - **Manajemen Karyawan:** Tambah, edit, dan hapus data karyawan per divisi (hanya Admin).
 - **Manajemen Kriteria:** Pengaturan bobot dan sifat kriteria (Benefit/Cost) per divisi (hanya Admin).
 - **Input Penilaian:** Pemberian skor (0-100) untuk setiap karyawan berdasarkan kriteria yang ada (Admin & Pimpinan).
 - **Perankingan Otomatis:** Menghitung karyawan terbaik secara real-time menggunakan engine MOORA.
+- **Validasi Data Penilaian:** Otomatis mendeteksi skor kosong (0) dan mencegah pemberian rekomendasi karyawan terbaik yang tidak valid, serta memunculkan peringatan.
 - **Ekspor Laporan:** Mengunduh hasil perankingan dalam format **PDF** dan **CSV** (hanya Admin).
 - **Autentikasi:** Sistem login untuk mengamankan akses data dengan routing otomatis sesuai peran.
 

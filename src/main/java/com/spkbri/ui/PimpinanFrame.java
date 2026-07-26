@@ -15,18 +15,15 @@ public class PimpinanFrame extends JFrame {
 
     private CardLayout cardLayout;
     private JPanel mainContentPanel;
-    
-    // Panels
+
     private PimpinanKaryawanPanel karyawanPanel;
     private PimpinanPenilaianPanel penilaianPanel;
-    
-    // Sidebar Buttons
+
     private JButton btnKaryawan;
     private JButton btnPenilaian;
     private JButton btnReport;
     private JButton btnLogout;
-    
-    // Submenu buttons
+
     private JButton subBtnDataBisnis;
     private JButton subBtnDataOps;
     private JButton subBtnHitungBisnis;
@@ -48,14 +45,12 @@ public class PimpinanFrame extends JFrame {
         root.setBackground(Color.WHITE);
         setContentPane(root);
 
-        // ===== SIDEBAR =====
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setBackground(new Color(10, 50, 110)); // Biru gelap BRI
+        sidebar.setBackground(new Color(10, 50, 110));
         sidebar.setPreferredSize(new Dimension(240, 680));
         sidebar.setBorder(new EmptyBorder(20, 15, 20, 15));
 
-        // Logo
         JLabel lblLogo = new JLabel();
         try {
             java.io.File logoFile = new java.io.File("logo.png");
@@ -82,7 +77,6 @@ public class PimpinanFrame extends JFrame {
         lblSubLogo.setAlignmentX(Component.LEFT_ALIGNMENT);
         lblSubLogo.setBorder(new EmptyBorder(0, 0, 20, 0));
 
-        // Badge role
         JPanel badgePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         badgePanel.setBackground(null);
         badgePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -96,7 +90,6 @@ public class PimpinanFrame extends JFrame {
         badgePanel.add(lblBadge);
         badgePanel.setBorder(new EmptyBorder(0, 0, 8, 0));
 
-        // Nama pimpinan
         JLabel lblRoleTitle = new JLabel("LOGIN SEBAGAI");
         lblRoleTitle.setFont(new Font("Segoe UI", Font.BOLD, 10));
         lblRoleTitle.setForeground(new Color(100, 140, 180));
@@ -114,7 +107,6 @@ public class PimpinanFrame extends JFrame {
         sidebar.add(lblRoleTitle);
         sidebar.add(lblNama);
 
-        // Separator label
         JLabel lblMenuSep = new JLabel("MENU UTAMA");
         lblMenuSep.setFont(new Font("Segoe UI", Font.BOLD, 10));
         lblMenuSep.setForeground(new Color(100, 140, 180));
@@ -122,13 +114,11 @@ public class PimpinanFrame extends JFrame {
         lblMenuSep.setBorder(new EmptyBorder(0, 0, 8, 0));
         sidebar.add(lblMenuSep);
 
-        // Tombol navigasi
         btnKaryawan = createSidebarButton("Data Karyawan");
         btnPenilaian = createSidebarButton("Input Penilaian");
         btnReport = createSidebarButton("Laporan \u25BC");
         btnLogout = createSidebarButton("Logout");
-        
-        // Report Submenu Panel
+
         JPanel submenuPanel = new JPanel();
         submenuPanel.setLayout(new BoxLayout(submenuPanel, BoxLayout.Y_AXIS));
         submenuPanel.setBackground(new Color(10, 50, 110));
@@ -178,7 +168,6 @@ public class PimpinanFrame extends JFrame {
 
         root.add(sidebar, BorderLayout.WEST);
 
-        // ===== CONTENT AREA =====
         cardLayout = new CardLayout();
         mainContentPanel = new JPanel(cardLayout);
 
@@ -188,7 +177,6 @@ public class PimpinanFrame extends JFrame {
         mainContentPanel.add(karyawanPanel, "Karyawan");
         mainContentPanel.add(penilaianPanel, "Penilaian");
 
-        // ===== HEADER (drag + window controls) =====
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(new Color(245, 247, 250));
         headerPanel.setPreferredSize(new Dimension(784, 35));
@@ -242,7 +230,6 @@ public class PimpinanFrame extends JFrame {
         rightContainer.add(mainContentPanel, BorderLayout.CENTER);
         root.add(rightContainer, BorderLayout.CENTER);
 
-        // Default aktif: Data Karyawan
         highlightButton(btnKaryawan);
         cardLayout.show(mainContentPanel, "Karyawan");
     }
@@ -278,7 +265,7 @@ public class PimpinanFrame extends JFrame {
         btn.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         btn.setForeground(new Color(148, 180, 220));
         btn.setBackground(new Color(10, 50, 110));
-        btn.setBorder(new EmptyBorder(8, 30, 8, 10)); // indented
+        btn.setBorder(new EmptyBorder(8, 30, 8, 10));
         btn.setContentAreaFilled(false);
         btn.setBorderPainted(false);
         btn.setFocusPainted(false);
@@ -340,11 +327,10 @@ public class PimpinanFrame extends JFrame {
             karyawanPanel.refreshData();
         }
     }
-    
+
     private void switchReport(String type, String divisi, JButton source) {
         highlightButton(source);
-        
-        // Remove existing dynamic report panel if any
+
         Component[] comps = mainContentPanel.getComponents();
         for (Component c : comps) {
             if (c.getName() != null && c.getName().equals("ReportDyn")) {
@@ -352,7 +338,7 @@ public class PimpinanFrame extends JFrame {
                 break;
             }
         }
-        
+
         ReportPanel rp = new ReportPanel(type, divisi);
         rp.setName("ReportDyn");
         mainContentPanel.add(rp, "ReportDyn");
