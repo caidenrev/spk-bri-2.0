@@ -189,14 +189,73 @@ public class ExportHelper {
     }
 
     private static void addHeader(Document document, String titleStr, String divisi) throws Exception {
-        Font titleFont = new Font(Font.HELVETICA, 16, Font.BOLD);
-        Font subtitleFont = new Font(Font.HELVETICA, 12, Font.NORMAL);
+        PdfPTable headerTable = new PdfPTable(new float[]{1.5f, 5.5f});
+        headerTable.setWidthPercentage(100);
+
+        try {
+            com.lowagie.text.Image logo = com.lowagie.text.Image.getInstance("logo-kop-surat.png");
+            logo.scaleToFit(70, 70);
+            PdfPCell logoCell = new PdfPCell(logo);
+            logoCell.setBorder(0);
+            logoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            logoCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            headerTable.addCell(logoCell);
+        } catch (Exception e) {
+            PdfPCell empty = new PdfPCell();
+            empty.setBorder(0);
+            headerTable.addCell(empty);
+        }
+
+        PdfPCell textCell = new PdfPCell();
+        textCell.setBorder(0);
+        textCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        textCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        
+        Font font1 = new Font(Font.TIMES_ROMAN, 16, Font.BOLD);
+        Font font2 = new Font(Font.TIMES_ROMAN, 14, Font.BOLD);
+        Font font3 = new Font(Font.TIMES_ROMAN, 10, Font.NORMAL);
+        
+        Paragraph p1 = new Paragraph("PT. BANK RAKYAT INDONESIA (Persero) Tbk.", font1);
+        p1.setAlignment(Element.ALIGN_CENTER);
+        textCell.addElement(p1);
+        
+        Paragraph p2 = new Paragraph("KANTOR CABANG PEMBANTU ARUNDINA (i.1170)", font2);
+        p2.setAlignment(Element.ALIGN_CENTER);
+        textCell.addElement(p2);
+        
+        Paragraph p3 = new Paragraph("Jl. Lapangan Tembak No. 14H Kelapa Dua Wetan , Ciracas ,Jakarta-Timur", font3);
+        p3.setAlignment(Element.ALIGN_CENTER);
+        textCell.addElement(p3);
+        
+        Paragraph p4 = new Paragraph("Telepon: (021) 87710767, 87710642 * Facs: (021) 8721694", font3);
+        p4.setAlignment(Element.ALIGN_CENTER);
+        textCell.addElement(p4);
+        
+        headerTable.addCell(textCell);
+        document.add(headerTable);
+
+        PdfPTable lineTable = new PdfPTable(1);
+        lineTable.setWidthPercentage(100);
+        PdfPCell lineCell = new PdfPCell(new Paragraph(""));
+        lineCell.setBorder(0);
+        lineCell.setBorderWidthBottom(2f);
+        lineCell.setPaddingBottom(5f);
+        lineTable.addCell(lineCell);
+        document.add(lineTable);
+        
+        document.add(new Paragraph("\n"));
+
+        Font titleFont = new Font(Font.HELVETICA, 14, Font.BOLD);
+        Font subtitleFont = new Font(Font.HELVETICA, 11, Font.NORMAL);
         Paragraph title = new Paragraph(titleStr, titleFont);
         title.setAlignment(Element.ALIGN_CENTER);
         document.add(title);
-        Paragraph subtitle = new Paragraph("Bank BRI KCP Arundina - Divisi " + divisi, subtitleFont);
-        subtitle.setAlignment(Element.ALIGN_CENTER);
-        document.add(subtitle);
+        
+        if (divisi != null && !divisi.isEmpty()) {
+            Paragraph subtitle = new Paragraph("Divisi " + divisi, subtitleFont);
+            subtitle.setAlignment(Element.ALIGN_CENTER);
+            document.add(subtitle);
+        }
         document.add(new Paragraph("\n"));
     }
 
