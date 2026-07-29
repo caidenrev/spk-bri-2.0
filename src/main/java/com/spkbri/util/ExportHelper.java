@@ -49,6 +49,7 @@ public class ExportHelper {
         }
 
         document.add(table);
+        addSignature(document, divisi);
         document.close();
     }
 
@@ -130,6 +131,7 @@ public class ExportHelper {
         }
         document.add(t3);
 
+        addSignature(document, divisi);
         document.close();
     }
 
@@ -161,6 +163,7 @@ public class ExportHelper {
         }
 
         document.add(table);
+        addSignature(document, divisi);
         document.close();
     }
 
@@ -264,5 +267,61 @@ public class ExportHelper {
         cell.setHorizontalAlignment(alignment);
         cell.setPadding(5);
         return cell;
+    }
+
+    private static String getPimpinanName(String divisi) {
+        String pimpinanName = "NAMA PIMPINAN";
+        String usernameTarget = (divisi != null && divisi.equalsIgnoreCase("Bisnis")) ? "pimpinan_bisnis" : "pimpinan_ops";
+        
+        String sql = "SELECT nama_lengkap FROM users WHERE username = ? AND role = 'pimpinan'";
+        try (java.sql.Connection conn = com.spkbri.database.DatabaseHelper.getConnection();
+             java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, usernameTarget);
+            try (java.sql.ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    pimpinanName = rs.getString("nama_lengkap");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return pimpinanName;
+    }
+
+    private static void addSignature(Document document, String divisi) throws Exception {
+        document.add(new Paragraph("\n\n")); // Space before signature
+
+        PdfPTable table = new PdfPTable(1);
+        table.setWidthPercentage(40);
+        table.setHorizontalAlignment(Element.ALIGN_RIGHT);
+
+        Font normalFont = new Font(Font.HELVETICA, 10, Font.NORMAL);
+        Font boldUnderlineFont = new Font(Font.HELVETICA, 10, Font.BOLD | Font.UNDERLINE);
+        Font boldFont = new Font(Font.HELVETICA, 10, Font.BOLD);
+
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd MMMM yyyy", new java.util.Locale("id", "ID"));
+        String dateStr = java.time.LocalDate.now().format(formatter);
+        
+        PdfPCell cellDate = new PdfPCell(new Paragraph("Jakarta, " + dateStr, normalFont));
+        cellDate.setBorder(0);
+        cellDate.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellDate);
+
+        PdfPCell cellTitle = new PdfPCell(new Paragraph("Pimpinan Cabang", boldFont));
+        cellTitle.setBorder(0);
+        cellTitle.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellTitle);
+
+        PdfPCell cellSpace = new PdfPCell(new Paragraph("\n\n\n\n", normalFont));
+        cellSpace.setBorder(0);
+        table.addCell(cellSpace);
+
+        String namaPimpinan = getPimpinanName(divisi);
+        PdfPCell cellName = new PdfPCell(new Paragraph(namaPimpinan, boldUnderlineFont));
+        cellName.setBorder(0);
+        cellName.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellName);
+
+        document.add(table);
     }
 }
